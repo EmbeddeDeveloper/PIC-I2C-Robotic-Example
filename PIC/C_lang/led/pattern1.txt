@@ -1,0 +1,79 @@
+#include<pic.h>
+void delay(unsigned int );
+ void main()
+
+{
+    RP0=0x01;     
+	RP1=0x00;		//bank 1 selected
+	
+	TRISB=0x00;		//port b made as output
+
+	RP0=0x00;    	// bank0 selected
+	RP1=0x00;
+
+
+	while(1)
+	{
+	//TO and Fro
+
+		PORTB=0x18;		
+		delay(200);
+
+		PORTB=0x24;		
+		delay(200);
+
+		PORTB=0x42;		
+		delay(200);
+
+		PORTB=0x81;		
+		delay(200);
+	
+	// Fro and TO
+	
+		PORTB=0x81;		
+		delay(200);
+
+		PORTB=0x42;		
+		delay(200);
+
+		PORTB=0x24;		
+		delay(200);
+
+		PORTB=0x18;		
+		delay(200);
+	}
+		
+///////////////////////////////////////////////////////
+	
+	
+
+}
+void delay(unsigned int k)
+
+{ 
+  unsigned int i,j;
+
+  for(i=0;i<k;i++)
+  for(j=0;j<40;j++);		//We are using 4Mhz crystal freq. in "PIC" therfore 4*10=40 that's why we are using 40. 
+}
+///////////////////////////////////////////////
+
+/*Address of LED's	
+LED 	8 4 2 1      8 4 2 1
+
+	if we want to make middle to right or left continous
+then we should have to give some addresses to glow the led as per our program concept.
+ADD:
+  	Middle to right and left continous(To and Fro)
+	PORTB=0x18(00011000)
+	PORTB=0x24(00100100)
+	PORTB=0x42(01000010)
+	PORTB=0x81(10000001)
+/////////////////////////////
+ADD:
+	Middle to right and left continous(Fro and To)
+	PORTB=0x81(10000001)
+	PORTB=0x42(01000010)
+	PORTB=0x24(00100100) 
+	PORTB=0x18(00011000)
+ */

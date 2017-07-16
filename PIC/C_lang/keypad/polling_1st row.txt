@@ -1,0 +1,34 @@
+/*****************************************/
+/*---Row				Coloum
+			
+sl1=RA1			krl1=RA2				 
+sl2=RC0			krl2=RA3				 
+sl3=RC1			krl3=RA4				 
+sl4=RC2			krl4=RA5		
+					-----*/
+/*****************************************/
+#include<pic.h>
+
+void main()
+{
+	TRISB=0x00;		//make o/p direction
+	ADCON1=0x06;		//for digital value
+	TRISC=0x00;		//make o/p direction
+	TRISA=0xFD;		//first row selected
+	
+	RA2=RA3=RA4=RA5=1;	//
+//	PORTB=0xee;
+
+	while(1)	
+	{
+		RA1=0;
+		if(RA2==0)
+			PORTB=0xfc;
+		if(RA3==0)
+			PORTB=0x60;
+		if(RA4==0)
+			PORTB=0xda;
+		if(RA5==0)
+			PORTB=0xf2;
+	}
+}

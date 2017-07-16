@@ -1,0 +1,60 @@
+// basic uart //
+#include<pic.h>
+
+void init_uart();
+void tx(unsigned char ch);
+void main()
+{
+        TRISC=0Xc0;	// PORTC data direction register
+	init_uart();
+ 	tx('A');
+	while(1);
+}
+void init_uart()
+{
+	// for TxSTA register
+	//Address Name   Bit 7  Bit 6  Bit 5  Bit 4  Bit 3  Bit 2  Bit 1  Bit 0  Value on:
+			 ;						       ; POR, BOR
+			 ;						       ;
+			 ;						       ;
+	//     98h       CSRC   TX9    TXEN   SYNC    —     BRGH   TRMT   TX9D   0000 -010 
+
+	//bit 4 SYNC: USART Mode Select bit
+	//1 = Synchronous mode
+	//0 = Asynchronous mode
+	
+	TXSTA=0X24;	//8bit of length and high baud rate generated.....
+
+	SPBRG=25;	// 9600 baud rate selected for high baud rate ....
+	
+	
+// RCSTA register:
+
+//	R/W-0  R/W-0  R/W-0  R/W-0  R/W-0  R-0   R-0   R-x
+//	SPEN   RX9    SREN   CREN   ADDEN  FERR  OERR  RX9D
+//
+//      bit 7                                          bit 0
+
+//	bit 7 SPEN: Serial Port Enable bit
+//	1 = Serial port enabled (configures RC7/RX/DT and RC6/TX/CK pins as serial port pins)
+//	0 = Serial port disabled
+
+
+//	bit 4 CREN: Continuous Receive Enable bit
+//	Asynchronous mode:
+//	1 = Enables continuous receive
+//	0 = Disables continuous receive
+	
+//	Synchronous mode:
+//	1 = Enables continuous receive until enable bit CREN is cleared (CREN overrides SREN)
+//	0 = Disables continuous receive
+
+	RCSTA=0X80;	
+}
+
+void tx(unsigned char ch)
+{
+	TXREG=ch;
+	while(TXIF==0);
+	TXIF=0;
+}

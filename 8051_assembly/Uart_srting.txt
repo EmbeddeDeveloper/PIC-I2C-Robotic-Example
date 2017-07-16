@@ -1,0 +1,34 @@
+org		00aah
+sentence:db	'my name is Ronak.',0
+	
+		org 	0000h
+		call    init_uart	
+main: 		mov	dptr,#00aah
+again:		clr	a
+		movc	a,@a+dptr
+		jz	main
+		call	transmitt
+		inc	dptr
+		call	delay
+		jmp	again
+/*----------------------------------*/
+init_uart:
+		mov 	tmod,#20h
+		mov 	th1,#0fdh
+		mov 	scon,#50h
+		setb 	tr1	
+		ret
+/*----------------------------------*/
+transmitt:	mov 	sbuf,a
+		jnb 	ti,$
+		clr 	ti
+		ret
+/*----------------------------------*/
+delay:		mov 	r3,#04
+		d2:	mov r1,#0ffh
+		d1:	mov r2,#0ffh
+		djnz 	r2,$
+		djnz 	r1,d1
+		djnz 	r3,d2
+		ret
+		end

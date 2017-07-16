@@ -1,0 +1,48 @@
+#include <pic.h>
+void timer1();
+void timer1_interrupt()
+{
+	PORTB=~PORTB;
+	//TMR1IF=0;		//clear overflow flag by manualy....
+					//it is also ok when you are not clearing overflow flag..
+}
+
+void main()
+{
+	TRISB=0x00;		// port b made as o/p
+	PORTB=0x55;		//it will display on led
+	timer1();		//timer calling function
+	GIE=PEIE=1;		//global inteerupt selected.....like ea bit in 8051
+					//enables all unmasked pehripehral interrupts...
+	while(1);
+}
+
+void timer1()
+{
+	/*1st step :- select timer as timer
+	T1CON is used to select timer as timer
+	TMR1CS bit decide timer clk source...
+	there is a provision..
+	for prescaling timer value...
+	bit 5:4
+	    0 0 - 1M/C
+	    0 1 - 2
+	    1 0 - 4
+	    1 1 - 8*/
+	
+	T1CON=0x30;		//prescaler 1:8 selected..means 50ms*8=400ms...delay generated
+	
+	/*2nd step:- load appropriate value in timer registers....
+	for 50 ms...
+	 65536 - (cnt in decimal) = M/C
+	 1 M/C = 4Mhz/4 = 1Mhz = 1us....
+	 65536 - cnt = 50000us...
+	cnt = 65536-50000
+	cnt = 15536...
+	cnt = 3cb0 in hex...*/
+	
+	TMR1H=0x3c;		//50ms delay selected
+	TMR1L=0xb0;
+	
+	TMR1ON=TMR1IE=1;		//timer started and timer interrupt selected....like et0 in 8051
+}

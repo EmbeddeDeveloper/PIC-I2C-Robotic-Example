@@ -1,0 +1,86 @@
+C51 COMPILER V9.00   TEST                                                                  07/22/2013 17:48:00 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE TEST
+OBJECT MODULE PLACED IN test.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE test.c LARGE BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <REG51F.H>
+   2          #include <INTRINS.H>
+   3          #define TRUE 1
+   4          #define disp P1
+   5          
+   6          //sbit bl=P0^0;         //for LCD back light 
+   7          sbit rs=P3^5;           //Signal PIN
+   8          sbit rw=P3^6;           //Signal PIN
+   9          sbit en=P3^7;           //Enable PIN
+  10          
+  11          void init_LCD();
+  12          void display(unsigned char signal,unsigned char cmd_data); 
+  13          void delay(unsigned int time);
+  14          void enable();
+  15          /*----beginning of main prog.-----*/
+  16          void main()
+  17          {
+  18   1              init_LCD();
+  19   1              display(0,0x85);
+  20   1              display(1,'T');
+  21   1              display(1,'I');
+  22   1              display(1,'E');
+  23   1              display(1,'S');
+  24   1      
+  25   1              while(TRUE);
+  26   1      }
+  27          //---------------------//
+  28          void init_LCD()
+  29          {
+  30   1              delay(15);
+  31   1              display(0,0x38);                //LCD row and column is selected
+  32   1              display(0,0x0f);                //display ON and Cursor ON
+  33   1              display(0,0x06);                //Increment shift cursor right side
+  34   1              display(0,0x01);                //clear LCD
+  35   1      }
+  36          //---------------------//
+  37          void display(unsigned char signal,unsigned char cmd_data)
+  38          {
+  39   1              delay(15);
+  40   1              rs=signal;      //when you give signal = 0 then it work as LCD command
+  41   1                              // when you give signal = 1 then it work as LCD data
+  42   1              rw=0;
+  43   1              disp = cmd_data;
+  44   1              enable();
+  45   1      }
+  46          //---------------------//
+  47          void enable()
+  48          {
+  49   1              en=1;
+  50   1              delay(1);
+  51   1              en=0;
+  52   1      
+  53   1      }
+  54          //---------------------//
+  55          void delay(unsigned int time)
+C51 COMPILER V9.00   TEST                                                                  07/22/2013 17:48:00 PAGE 2   
+
+  56          {
+  57   1              unsigned int i,j;
+  58   1              for(i=0;i<time;i++)
+  59   1                      for(j=0;j<120;j++);     
+  60   1      }
+  61          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    151    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       2
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

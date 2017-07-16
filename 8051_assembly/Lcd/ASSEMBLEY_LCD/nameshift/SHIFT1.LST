@@ -1,0 +1,356 @@
+  Thu Dec 11 2008 13:51                                                                                                  Page    1
+
+
+
+
+
+
+
+               2500 A.D. 8051 Macro Assembler  -  Version 4.03c
+               ------------------------------------------------
+
+                       Input  Filename : shift1.asm
+                       Output Filename : shift1.obj
+
+
+    1                          	;define bit variables here...
+    2                          	;
+    3          00E0            	A0:	REG	A.0
+    4          00E1            	A1:	REG	A.1
+    5          00E2            	A2:	REG	A.2
+    6          00E3            	A3:	REG	A.3
+    7          00E4            	A4:	REG	A.4
+    8          00E5            	A5:	REG	A.5
+    9          00E6            	A6:	REG	A.6
+   10          00E7            	A7:	REG	A.7
+   11                          	;
+   12          0081            	rs:   	REG     P0.1   	 ;resgister select for LCD
+   13          0082            	r/w:   	REG     P0.2	;read/write for LCD
+   14          0083            	e:   	REG     P0.3	;enable for LCD
+   15          0084            	d4:   	REG     P0.4	;data bit d4 for LCD
+   16          0085            	d5:  	REG     P0.5	;data bit d5 for LCD
+   17          0086            	d6:   	REG     P0.6	;data bit d6 for LCD
+   18          0087            	d7:  	REG     P0.7	;data bit d7 for LCD
+   19                          	
+   20          0030            	count16:	equ	30h
+   21                          	;-------------------------------------------------------------------------
+   22   0000   12 00 2F        		call	lcd_init
+   23   0003   12 00 86        		call	clear_display
+   24   0006   90 00 0D        		mov	dptr,#m_sw
+   25   0009   12 00 FF        		call	wr_lcd_message16
+   26   000C   22              		ret
+   27   000D                   	m_sw:	
+   28   000D   20 20 20 20 20  		db	"        prolific "
+        0012   20 20 20 70 72 
+        0017   6F 6C 69 66 69 
+        001C   63 20 
+   29   001E   2D 2D 2D 2D 2D  		db	"----------------",#03h 
+        0023   2D 2D 2D 2D 2D 
+        0028   2D 2D 2D 2D 2D 
+        002D   2D 03 
+   30                          	
+   31   002F                   	lcd_init:
+   32   002F   12 01 20        		call	wait_5ms
+   33   0032   12 01 20        		call	wait_5ms
+   34   0035   12 01 20        		call	wait_5ms
+   35                          	;
+   36   0038   74 30           		mov	a,#30h			; port P07..P04 connected to d7_d4
+   37   003A   12 00 7B        		call	lcd_cw0		
+   38                          	;-------------------------------------------------------------------------
+   39   003D   12 01 20        		call	wait_5ms		;4.1ms
+   40   0040   74 30           		mov	a,#30h			;
+   41   0042   12 00 7B        		call	lcd_cw0
+  Thu Dec 11 2008 13:51                                                                                                  Page    2
+
+
+
+
+   42                          	;-------------------------------------------------------------------------
+   43   0045   12 01 20        		call	wait_5ms		;call	wait_100us
+   44   0048   74 30           		mov	a,#30h			;
+   45   004A   12 00 7B        		call	lcd_cw0
+   46                          	;----------------------------------------------------------------------
+   47   004D   12 01 20        		call	wait_5ms		;call	wait_100us
+   48   0050   74 20           		mov	a,#20h			;
+   49   0052   12 00 7B        		call	lcd_cw0
+   50                          	;----------------------------------------------------------------------
+   51   0055                   	lcd_init1:	
+   52   0055   74 28           		mov	a,#28h		;lcd type initialisation
+   53   0057   12 00 96        		call	lcd_cw
+   54   005A                   		
+   55   005A   74 08           		mov	a,#08h		;display off cursor off
+   56   005C   12 00 96        		call	lcd_cw
+   57   005F                   		
+   58   005F   74 0C           		mov	a,#0ch		;display on cursor on
+   59   0061   12 00 96        		call	lcd_cw
+   60   0064                   			
+   61   0064   74 05           		mov	a,#05h	;cursor fixed and display shift enable
+   62   0066   12 00 96        		call	lcd_cw
+   63   0069                   			
+   64   0069   74 0E           		mov	a,#0eh		;display cursor blinking
+   65   006B   12 00 96        		call	lcd_cw
+   66   006E                   		
+   67   006E   74 18           		mov	a,#18h		;display shift left
+   68   0070   12 00 96        		call	lcd_cw
+   69   0073                   			
+   70   0073   74 01           		mov	a,#01h		;clear display
+   71   0075   12 00 96        		call	lcd_cw
+   72   0078                   		
+   73   0078                   		  
+   74   0078   C2 80           		clr	p0.0
+   75   007A   22              		ret
+   76                          	;------------------------------------------------------
+   77                          	;write lcd control word. (control word in a) 
+   78                          	;without 5msec wait.
+   79   007B                   	lcd_cw0:
+   80   007B   12 00 EE        		call	map
+   81   007E   C2 81           		clr	rs		;Control 
+   82   0080   C2 82           		clr	r/w		;write
+   83   0082   12 00 E3        		call	toggle_e
+   84   0085   22              		ret	
+   85                          	;------------------------------------------------------
+   86                          	
+   87                          	;-----------------------------------------------------------
+   88                          	;clears display and moves cursor to start position.
+   89   0086                   	clear_display:
+   90   0086   C0 E0           		push	a
+   91   0088   12 00 CD        		call	busy	
+   92   008B   74 01           		mov	a,#00000001b
+   93   008D   12 00 96        		call	lcd_cw
+   94   0090   12 01 20        		call	wait_5ms
+   95   0093   D0 E0           		pop	a
+   96   0095   22              		ret
+   97                          	;------------------------------------------------------------
+   98                          	
+  Thu Dec 11 2008 13:51                                                                                                  Page    3
+
+
+
+
+   99                          	
+  100                          	;------------------------------------------------------------
+  101                          	;set address in ddram		;address in a.(ie. 1xxxxxxxb)
+  102                          	;cursor moves to new address
+  103                          	
+  104   0096                   	mov_lcd_cursor:
+  105                          	
+  106                          	;write lcd control word. (control word in a)
+  107                          	
+  108   0096                   	lcd_cw:
+  109   0096   C0 E0           		push	a
+  110   0098   12 00 CD        		call	busy		
+  111                          	;--------------------------------
+  112   009B   12 00 EE        		call	map
+  113                          	;--------------------------------
+  114   009E   C2 81           		clr	rs		;Control 
+  115   00A0   C2 82           		clr	r/w		;write
+  116   00A2   12 00 E3        		call	toggle_e
+  117                          	;--------------------------
+  118   00A5   C4              		swap	a
+  119   00A6   12 00 EE        		call	map
+  120                          	;--------------------------------
+  121                          	;
+  122   00A9   12 00 E3        		call	toggle_e
+  123                          	;-------------------------------
+  124   00AC   D0 E0           		pop	a
+  125   00AE   22              		ret	
+  126                          	;------------------------------------------------------
+  127                          	
+  128                          	;------------------------------------------------------
+  129                          	;write lcd data word. (data word in a)
+  130   00AF                   	wr_lcd_dw:
+  131                          	;--------------------------------
+  132   00AF   C0 E0           		push	a
+  133   00B1   12 00 CD        		call	busy				
+  134                          	;--------------------------------
+  135   00B4   12 00 EE        		call	map
+  136                          	;--------------------------------
+  137   00B7   D2 81           		setb	rs		;data
+  138   00B9   C2 82           		clr	r/w		;write
+  139   00BB   12 00 E3        		call	toggle_e
+  140                          	;--------------------------------
+  141   00BE   C4              		swap	a
+  142   00BF   12 00 EE        		call	map
+  143                          	;--------------------------------
+  144   00C2   12 00 E3        		call	toggle_e
+  145                          	;--------------------------------
+  146   00C5   D0 E0           		pop	a
+  147   00C7   22              		ret	
+  148                          	;------------------------------------------------------
+  149                          	
+  150                          	
+  151                          	
+  152                          	;------------------------------------------------------
+  153                          	;converts 00..09 to display 0..9 (ascii) on lcd
+  154   00C8                   	wr_lcd_data:
+  155   00C8   24 30           		add	a,#30h
+  Thu Dec 11 2008 13:51                                                                                                  Page    4
+
+
+
+
+  156   00CA   11 AF           		call	wr_lcd_dw
+  157   00CC   22              		ret
+  158                          	;------------------------------------------------------
+  159                          	
+  160                          	
+  161                          	
+  162                          	;------------------------------------------------------
+  163   00CD                   	busy:
+  164                          	;read lcd status word.
+  165                          	;
+  166   00CD   D2 87           		 setb	d7		;config (busy flag) as i/p
+  167   00CF   C2 81           		clr	rs		;Status(Control) 
+  168   00D1   D2 82           		setb	r/w		;read
+  169   00D3   00              		nop
+  170   00D4   D2 83           		setb	e
+  171   00D6   00              		nop
+  172   00D7   A2 87           		mov	c,d7		;copy busy flag to carry.
+  173   00D9   00              		nop
+  174   00DA   C2 83           		clr	e
+  175                          	;-------------------------------------------------------
+  176   00DC   00              		nop
+  177   00DD   12 00 E3        		call	toggle_e
+  178   00E0   40 EB           		jc	busy
+  179   00E2   22              		ret	
+  180                          	;------------------------------------------------------
+  181                          	
+  182                          	;------------------------------------------------------
+  183   00E3                   	toggle_e:
+  184   00E3   00              		nop
+  185   00E4   D2 83           		setb	e
+  186   00E6   00              		nop
+  187   00E7   00              		nop
+  188   00E8   00              		nop
+  189   00E9   00              		nop
+  190   00EA   C2 83           		clr	e
+  191   00EC   00              		nop
+  192                          	;	
+  193   00ED   22              		ret
+  194                          	;------------------------------------------------------
+  195                          	
+  196                          	
+  197                          	;------------------------------------------------------
+  198                          	;maps value in a to lcd port.
+  199   00EE                   	map:
+  200   00EE   A2 E4           		mov	c,A4
+  201   00F0   92 84           		mov	d4,c
+  202                          	;
+  203   00F2   A2 E5           		mov	c,A5	
+  204   00F4   92 85           		mov	d5,c
+  205                          	;
+  206   00F6   A2 E6           		mov	c,A6	
+  207   00F8   92 86           		mov	d6,c
+  208                          	;
+  209   00FA   A2 E7           		mov	c,A7
+  210   00FC   92 87           		mov	d7,c
+  211                          	;
+  212   00FE   22              		ret	
+  Thu Dec 11 2008 13:51                                                                                                  Page    5
+
+
+
+
+  213                          	;------------------------------------------------------
+  214                          	
+  215                          	
+  216                          	
+  217                          	
+  218                          	
+  219                          	
+  220                          	;------------------------------------------------------
+  221                          	;writes the message starting at the first location
+  222                          	;after 16 positions..it corrects the address for proper
+  223                          	;2 line 16 charc display.
+  224                          	;the string should be terminated by 03h.
+  225                          	
+  226   00FF                   	wr_lcd_message16:
+  227   00FF   75 30 00        		mov	count16,#00h
+  228   0102   C0 E0           		push	a
+  229   0104                   	wlm_l1:
+  230   0104   74 00           		mov	a,#00h
+  231   0106   93              		movc	a,@a+dptr
+  232   0107   B4 03 03        		cjne	a,#03h,wlm_l2
+  233   010A   02 01 1D        		jmp	out_wlm
+  234   010D                   	wlm_l2:
+  235   010D   11 AF           		call	wr_lcd_dw	;write at the current cursor position.
+  236   010F   A3              		inc	dptr
+  237                          	;
+  238   0110   05 30           		inc	count16		;init to 00h
+  239   0112   E5 30           		mov	a,count16
+  240   0114   B4 10 ED        		cjne	a,#16d,wlm_l1
+  241                          	;
+  242   0117   74 A8           		mov	a,#10101000b	;init new cursor position. 10101001b
+  243   0119   11 96           		call	mov_lcd_cursor	
+  244                          	;
+  245   011B   21 04           		jmp	wlm_l1
+  246                          	;
+  247   011D                   	out_wlm:
+  248   011D   D0 E0           		pop	a
+  249   011F   22              		ret
+  250                          	
+  251                          	;------------------------------------------------------
+  252   0120                   	wait_5ms:
+  253   0120   7A 15           		mov	r2,#21d
+  254   0122   7B FF           	l1:	mov	r3,#0ffh
+  255   0124   DB FE           		djnz	r3,$
+  256   0126   DA FA           		djnz	r2,l1
+  257   0128   22              		ret
+  258                          	
+  259   0129                   	end
+  260                          	
+  261                          	
+  262                          	;-------------------------------------------------------------------------
+  263                          	;SW lcd.asm
+  Thu Dec 11 2008 13:51                                                                                                  Page    6
+
+
+Defined            Symbol Name             Value                References
+
+    3    A0                              =  00E0      
+    4    A1                              =  00E1      
+    5    A2                              =  00E2      
+    6    A3                              =  00E3      
+    7    A4                              =  00E4          200
+    8    A5                              =  00E5          203
+    9    A6                              =  00E6          206
+   10    A7                              =  00E7          209
+  Pre    BSECT                              0000      
+  163    busy                               00CD           91    110    133    178
+   89    clear_display                      0086           23
+  Pre    CODE                               0000      
+   20    count16                         =  0030          227    238    239
+   15    d4                              =  0084          201
+   16    d5                              =  0085          204
+   17    d6                              =  0086          207
+   18    d7                              =  0087          166    172    210
+  Pre    DATA                               0000      
+   14    e                               =  0083          170    174    185    190
+  259    end                                0129      
+  254    l1                                 0122          256
+  108    lcd_cw                             0096           53     56     59     62     65     68     71     93
+   79    lcd_cw0                            007B           37     41     45     49
+   31    lcd_init                           002F           22
+   51    lcd_init1                          0055      
+  199    map                                00EE           80    112    119    135    142
+  104    mov_lcd_cursor                     0096          243
+   27    m_sw                               000D           24
+  247    out_wlm                            011D          233
+   13    r/w                             =  0082           82    115    138    168
+   12    rs                              =  0081           81    114    137    167
+  Pre    RSECT                              0000      
+  183    toggle_e                           00E3           83    116    122    139    144    177
+  252    wait_5ms                           0120           32     33     34     39     43     47     94
+  229    wlm_l1                             0104          240    245
+  234    wlm_l2                             010D          232
+  154    wr_lcd_data                        00C8      
+  130    wr_lcd_dw                          00AF          156    235
+  226    wr_lcd_message16                   00FF           25
+
+
+
+
+           Lines Assembled :  263             Assembly Errors :  0
+
+
+

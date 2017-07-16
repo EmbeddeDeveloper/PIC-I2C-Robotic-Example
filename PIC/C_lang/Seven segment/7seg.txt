@@ -1,0 +1,51 @@
+#include<pic.h>
+
+void display();
+void delay(unsigned int time);
+void main()
+{
+ 	TRISB=TRISA=TRISC=0x00;		//Port B made as o/p//Port A made as o/p//port C made as o/p
+	while(1)
+	{
+		display();
+    }
+}
+
+void display()
+{
+	RA1=0;
+	RC0=RC1=RC2=1;
+	PORTB=0xfc;
+	delay(6);
+	//--------------------------------//
+	RC0=0;	
+	RA1=RC1=RC2=1;
+	PORTB=0x60;
+	delay(6);			
+	//--------------------------------//
+	RC1=0;
+	RA1=RC0=RC2=1;
+	PORTB=0xda;
+	delay(6);
+	//--------------------------------//
+	RC2=0;
+	RA1=RC0=RC1=1;
+	PORTB=0xf2;
+	delay(6);
+}
+
+void delay(unsigned int time)
+{
+ 	unsigned int i,j;
+	for(i=0;i<time;i++)
+    	for(j=0;j<40;j++);
+}
+//--------------------------------//
+/*
+for 1 msec delay=  7seg will display proper o/p "3210"
+for 1sec delay= 7seg will display continous (ds1=0,ds2=1,ds3=2,ds4=3)loop 
+i.e; its scrolling the o/p............
+*/
+
+
+

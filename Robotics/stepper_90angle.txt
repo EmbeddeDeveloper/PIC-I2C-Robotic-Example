@@ -1,0 +1,78 @@
+#include<REG51.H>
+
+sbit step1=P1^1;
+sbit step2=P1^2;
+sbit step3=P1^3;
+sbit step4=P1^4;
+void delay(unsigned int time); //on universal kit....90 degree angle///
+unsigned char k;
+/*--------------------------------*/
+void main()
+{
+	delay(2000);
+	for(k=0;k<6;k++)	//for 90 degree angle.....
+	{
+		delay(10);
+		step1=1;
+		step2=step3=step4=0;
+
+		delay(10);
+		step2=1;
+		step1=step3=step4=0;
+
+		delay(10);
+		step3=1;
+		step2=step1=step4=0;
+
+		delay(10);
+		step4=1;
+		step2=step3=step1=0;
+		delay(10);
+	}
+	/*--------------------------------*/
+	/*--------------------------------*/
+	delay(2000);
+	for(k=0;k<6;k++)	//for 180 degree angle.....for 1rpm you need to put 50..count..
+	{
+		step4=1;
+		step2=step3=step1=0;
+		delay(10);
+
+		step3=1;
+		step1=step2=step4=0;
+		delay(10);
+
+		step2=1;
+		step3=step1=step4=0;
+		delay(10);
+
+		step1=1;
+		step2=step3=step4=0;
+		delay(10);
+	}
+	while(1)
+}
+/*--------------------------------*/
+void delay(unsigned int time)
+{
+	unsigned int i,j;
+	 for(i=0;i<time;i++)
+	  for(j=0;j<120;j++);
+}
+/*--------------------------------*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

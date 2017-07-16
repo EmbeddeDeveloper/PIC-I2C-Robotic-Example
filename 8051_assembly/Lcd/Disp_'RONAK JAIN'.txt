@@ -1,0 +1,194 @@
+
+rs  bit p0.1	 ;define rs pin
+rw  bit p0.2	 ;define rw pin
+e   bit p0.3	 ;define enable bit
+
+d4  bit p0.4	;define data lines
+d5  bit p0.5
+d6  bit p0.6
+d7  bit p0.7
+
+a4  bit acc.4	;define acc bits for shifting to convert
+a5  bit acc.5	; from 8bit to 4bit
+a6  bit acc.6
+a7  bit acc.7
+
+count1 equ 30h
+count2 equ 31h
+count3 equ 32h
+count4 equ 33h
+count5 equ 34h
+;------------------------------------------------
+;------------------------------------------------
+;------------------------------------------------
+org  0000h
+
+  call  init_lcd
+  
+  mov   a,#"R"
+  call  data_write
+  call  wait_5ms
+
+  mov 	a,#"O"
+  call  data_write
+  call  wait_5ms
+
+  mov   a,#"N"
+  call  data_write
+  call  wait_5ms
+
+  mov   a,#"A"
+  call  data_write
+  call  wait_5ms
+
+  mov   a,#"K"
+  call  data_write
+  call  wait_5ms
+
+  mov   a,#" "
+  call  data_write
+  call  wait_5ms
+
+  mov   a,#"J"
+  call  data_write
+  call  wait_5ms
+
+  mov   a,#"A"
+  call  data_write
+  call  wait_5ms
+
+  mov   a,#"I"
+  call  data_write
+  call  wait_5ms
+
+  mov   a,#"N"
+  call  data_write
+  call  wait_5ms
+
+  jmp   $
+;----------factory based procedure-----------------
+init_lcd:
+
+  call wait_15ms
+ 
+  mov a,#30h						 // this all inststructions are compulsery for all lcd prog.
+  call cmd_write
+  call wait_5ms
+
+  mov a,#30h
+  call cmd_write
+  call wait_5ms
+
+  mov a,#30h
+  call cmd_write
+  call wait_5ms
+
+  mov a,#20h
+  call cmd_write
+  call wait_5ms
+;-------------------------------------------
+  mov a,#28h						  ;select rows and columns
+  call cmd_write
+  call wait_5ms						  // this instsructions are based on our application
+
+  mov a,#0fh						   ;display on, cursor blink
+  call cmd_write
+  call wait_5ms
+
+  mov a,#06h						   ;increment cursor on right side
+  call cmd_write
+  call wait_5ms
+
+  mov a,#01h							 ; clear lcd display
+  call cmd_write
+  call wait_5ms
+
+  ret
+;----------------------------------------------------
+
+;.................................................
+;-------------map function-------------------------
+map:
+       mov c,a4
+	   mov d4,c
+
+	   mov c,a5
+	   mov d5,c
+
+	   mov c,a6
+	   mov d6,c
+	   
+	   mov c,a7
+	   mov d7,c
+
+       ret
+;--------------------------------------------------
+;-------------pulse for enable---------------------
+enable:
+   setb e
+   nop
+   clr e
+
+   ret
+;--------------------------------------------------
+/*;------------------command write0(cmd_wr0)---------
+cmd_wr0:
+
+  call wait_5ms
+  clr rs
+  clr  rw
+  call map
+  call enable
+
+  ret*/
+;--------------------------------------------------
+;----------------command write function------------
+cmd_write:
+  call wait_5ms
+  clr rs
+  clr rw
+  call map
+  call enable
+  swap a
+  call map
+  call enable
+
+  ret
+;--------------------------------------------------
+;--------------data write function-----------------
+data_write:
+  call wait_5ms
+  setb rs
+  clr rw
+  call map
+  call enable
+  swap a
+  call map
+  call enable
+
+  ret
+;-------------------------------------------------- 
+;---------delay for 15ms--------------------------
+wait_15ms:
+
+  mov count1,#1bh
+  L1:
+    mov count2,#0ffh
+    djnz count2,$
+    djnz count1,L1
+
+	ret
+;--------------------------------------------------
+;--------------delay for 5ms-----------------------
+wait_5ms:
+
+   mov count1,#09h
+  L2:
+    mov count2,#0ffh
+    djnz count2,$
+    djnz count1,L2
+
+	ret
+;--------------------------------------------------
+ 
+end   

@@ -1,0 +1,35 @@
+count equ 35h
+
+org 0000h
+jmp main
+
+org 000bh
+ljmp isr_t0
+
+main:
+	mov count,#19d
+	mov p0,#0aah
+	mov a,p0
+	call timer
+	
+	jmp $
+
+timer:
+	
+	orl tmod,#01h
+	mov th0,#4bh
+	mov tl0,#0fdh
+	setb tr0
+	setb ea
+	setb et0
+	ret
+
+isr_t0:
+	call timer
+	djnz count,out
+	cpl a
+	mov p0,a
+	mov count,#19d
+out: reti
+
+end

@@ -1,0 +1,178 @@
+;------------pattern 1 for battery----------------
+  mov   a,#0eh
+  call  data_write
+  
+  mov   a,#0eh
+  call  data_write
+  
+  mov   a,#1fh
+  call  data_write
+  
+  mov   a,#1fh
+  call  data_write
+  
+  mov   a,#1fh
+  call  data_write
+  
+  mov   a,#1fh
+  call  data_write
+
+  mov   a,#1fh
+  call  data_write
+
+  mov   a,#00h
+  call  data_write
+;-------------------------------------------------
+;--------pattern 2 for tower----------------------
+  mov   a,#00h
+  call  data_write
+
+  mov   a,#00h
+  call  data_write
+  
+  mov   a,#00h
+  call  data_write
+
+  mov   a,#00h
+  call  data_write
+
+  mov   a,#00h
+  call  data_write
+
+  mov   a,#08h
+  call  data_write
+
+  mov   a,#18h
+  call  data_write
+
+  mov   a,#00h
+  call  data_write
+;-------------------------------------------------
+;-------pattern 2 for battery---------------------
+  mov   a,#0eh
+  call  data_write
+
+  mov   a,#0ah
+  call  data_write
+  
+  mov   a,#11h
+  call  data_write
+
+  mov   a,#11h
+  call  data_write
+
+  mov   a,#1fh
+  call  data_write
+
+  mov   a,#1fh
+  call  data_write
+
+  mov   a,#1fh
+  call  data_write
+
+  mov   a,#00h
+  call  data_write
+;-------------------------------------------------
+;---------pattern 3 for tower---------------------
+  mov   a,#00h
+  call  data_write
+
+  mov   a,#00h
+  call  data_write
+
+  mov   a,#00h
+  call  data_write
+
+  mov   a,#04h
+  call  data_write
+
+  mov   a,#04h
+  call  data_write
+
+  mov   a,#0ch
+  call  data_write
+
+  mov   a,#1ch
+  call  data_write
+
+  mov   a,#00h
+  call  data_write
+;-------------------------------------------------
+;------------pattern 3 for battery----------------
+
+  mov   a,#0eh
+  call  data_write
+
+  mov   a,#0ah
+  call  data_write
+
+  mov   a,#11h
+  call  data_write
+
+  mov   a,#11h
+  call  data_write
+
+  mov   a,#11h
+  call  data_write
+
+  mov   a,#11h
+  call  data_write
+
+  mov   a,#1fh
+  call  data_write
+
+  mov   a,#00h
+  call  data_write
+;-------------------------------------------------
+;--------------pattern 4 for tower----------------
+
+  mov   a,#00h
+  call  data_write
+
+  mov   a,#02h
+  call  data_write
+
+  mov   a,#02h
+  call  data_write
+
+  mov   a,#06h
+  call  data_write
+
+  mov   a,#06h
+  call  data_write
+
+  mov   a,#0eh
+  call  data_write
+
+  mov   a,#1eh
+  call  data_write
+
+  mov   a,#00h
+  call  data_write
+;--------------------------------------------------
+;-------------pattern 5 for tower------------------
+
+  mov   a,#01h
+  call  data_write
+
+  mov   a,#03h
+  call  data_write
+
+  mov   a,#03h
+  call  data_write
+
+  mov   a,#07h
+  call  data_write
+
+  mov   a,#07h
+  call  data_write
+
+  mov   a,#0fh
+  call  data_write
+
+  mov   a,#1fh
+  call  data_write
+
+  mov   a,#00h
+  call  data_write
+;--------------------------------------------------

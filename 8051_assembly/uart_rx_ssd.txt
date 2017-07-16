@@ -1,0 +1,52 @@
+org 0000h
+
+sl1 bit p2.0 		//bit selection for ssd1
+
+main:
+	call uart
+main1:	
+	call rx
+	call display
+	jmp main1
+
+display:
+	clr sl1		//segment 1 is selected
+	mov dptr,#table	//pattern of segment will pick from table 
+	movc a,@a+dptr 	//what ever pattern will move to the accumulator
+	mov p0,a 	//accumulator to port0 for ssd
+	ret
+			
+uart:			
+	mov tmod,#20h	//mode 2 and timer 1....for serial comm.
+	mov th1,#0fdh	//9600 baud rate is selected....
+	setb tr1	//timer is start..
+	mov scon,#50h	//mode 1 and serial comm. is enable and 8bit of data will be transmit 
+	ret
+
+tx:
+	mov sbuf,a	//whatever data in the accumulator it will tx to the sbuf register
+	jnb ti,$	//data is transimtting or not...
+	clr ti		//for next data...you must clear the ti bit of scon register
+	ret
+
+rx:
+	jnb ri,$	//data is receving or not ......
+	mov a,sbuf	//if receving then receive form serial buffer register...means sbuf register....
+	call tx		//whatever data am i recevied form sbuf....i will transmit to the controller to the pc....
+	subb a,#'0'	//acsii to hex conversion is going on...if i press 1 then ascii of 1 is 31 and 31 is sburtact from ascii '0'...so i will get 1 on ssd
+	clr ri		//for next data...you must clear the ri bit of scon register
+	ret
+
+table:
+	 db 0fch	//pattern of 0
+	 db 60h		//pattern of 1
+	 db 0dah	//pattern of 2
+	 db 0f2h	//pattern of 3
+	 db 66h		//pattern of 4
+	 db 0b6h	//pattern of 5
+	 db 0beh	//pattern of 6
+	 db 0e0h	//pattern of 7
+	 db 0feh	//pattern of 8
+	 db 0f6h	//pattern of 9
+
+end

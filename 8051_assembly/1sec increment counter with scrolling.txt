@@ -1,0 +1,147 @@
+			
+
+count  equ  30h 
+count1 equ 31h
+
+ds1 equ 32h
+ds2 equ 33h
+ds3 equ 34h
+ds4 equ 35h
+
+disp_cnt	equ	36h
+
+
+sl1	bit	p2.0
+sl2 bit p2.1
+sl3 bit p2.2
+sl4 bit p2.3
+
+;-----------------------------
+;--main programm
+	org 0000h
+
+	mov	ds1,#00
+	mov	ds2,#00
+	mov	ds3,#00
+	mov	ds4,#00
+
+l1_main:
+	mov		disp_cnt,#62
+
+back:
+	call	display
+	djnz	disp_cnt,back
+
+	call 	application
+
+	jmp l1_main
+;--------------------------
+;----Delay function
+delay:
+    mov count,#08h
+ L1:mov count1,#0ffh
+    djnz count1,$
+    djnz count,L1
+    ret
+
+;--------------------------------------
+;------Display Func
+display:
+
+	clr sl1
+	setb sl2
+	setb sl3
+	setb sl4
+
+	
+	mov	a,ds1
+	mov	dptr,#pattern_table
+	movc	a,@a+dptr
+	mov		p0,a
+
+
+	call delay
+
+	setb sl1
+	clr sl2
+	setb sl3
+	setb sl4
+
+	mov	a,ds2
+	mov	dptr,#pattern_table
+	movc	a,@a+dptr
+	mov		p0,a
+
+
+	call delay
+
+	setb sl1
+	setb sl2
+	clr sl3
+	setb sl4
+
+	mov	a,ds3
+	mov	dptr,#pattern_table
+	movc	a,@a+dptr
+	mov		p0,a
+
+
+	call delay
+
+	setb sl1
+	setb sl2
+	setb sl3
+	clr sl4
+
+	mov	a,ds4
+	mov	dptr,#pattern_table
+	movc	a,@a+dptr
+	mov		p0,a
+
+
+	call delay
+
+	ret
+
+pattern_table: 
+	db		11111100b	;0 pattern
+	db		60h	;1 pattern
+	db		0dah	;2 pattern
+	db		0f2h	;3 pattern
+	db		66h	;4 pattern
+	db		0b6h	;5 pattern
+	db		0beh	;6 pattern
+	db		0e0h	;7 pattern
+	db		0feh	;8 pattern
+	db		0f6h	;9 pattern
+
+;-------------------------------------------------
+;-----Application function
+
+application:
+
+
+	inc ds1
+	mov a,ds1
+	cjne a,#0ah,out
+	mov ds1,#00h
+
+	inc ds2
+	mov a,ds2
+	cjne a,#0ah,out
+	mov ds2,#00h
+
+	inc ds3
+	mov a,ds3
+	cjne a,#0ah,out
+	mov ds3,#00h
+
+	inc ds4
+	mov a,ds4
+	cjne a,#0ah,out
+	mov ds4,#00h
+
+out:	ret
+
+
+end

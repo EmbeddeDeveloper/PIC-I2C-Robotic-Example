@@ -1,0 +1,101 @@
+#include<pic.h>
+
+unsigned char ds1,ds2,ds3,ds4;
+void disp1();
+void disp2();
+void disp3();
+void disp4();
+void delay(unsigned int);
+unsigned char lut[]={0xfc,0x60,0xda,0xf2,0x66,0xb6,0xbe,0xe0,0xfe,0xf6};
+void main()
+{
+ 	TRISB=0x00;		//Port B made as output
+	TRISA=0x00;		//Port A made as o/p
+	TRISC=0x00;
+
+	unsigned int i;
+	ds1=0x03;
+	ds2=0x02;
+	ds3=0x01;
+	ds4=0x00;
+
+	while(1)
+	{
+		for(i=0;i<10;i++)
+
+		{
+			disp1();
+			delay(1);
+
+			disp2();
+			delay(1);
+
+			disp3();
+			delay(1);
+
+			disp4();
+			delay(1);
+			
+		}
+    }
+}
+//--------------------------------//
+void disp1()
+	{
+		RA1=0;
+		RC0=1;
+		RC1=1;
+		RC2=1;
+
+		PORTB=lut[ds1];
+		delay(1);
+	}
+//--------------------------------//
+void disp2()
+	{
+		RA1=1;
+		RC0=0;
+		RC1=1;
+		RC2=1;
+
+		PORTB=lut[ds2];
+		delay(1);			
+	}
+//--------------------------------//
+void disp3()
+	{
+		RA1=1;
+		RC0=1;
+		RC1=0;
+		RC2=1;
+
+		PORTB=lut[ds3];
+		delay(1);
+	}
+//--------------------------------//
+void disp4()
+	{
+		RA1=1;
+		RC0=1;
+		RC1=1;
+		RC2=0;
+
+		PORTB=lut[ds4];
+		delay(1);
+	}
+//--------------------------------//
+void delay(unsigned int k)
+{
+ 	unsigned int i,j;
+	for(i=0;i<k;i++)
+    for(j=0;j<40;j++);
+}
+//--------------------------------//
+/*
+for 1 msec delay=  7seg will display proper o/p "3210"
+for 1sec delay= 7seg will display continous (ds1=0,ds2=1,ds3=2,ds4=3)loop 
+i.e; its scrolling the o/p............
+*/
+
+
+

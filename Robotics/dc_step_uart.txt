@@ -1,0 +1,186 @@
+#include<REG51F.H>
+#include<stdio.h>
+
+sbit en1=P1^0;	//for enable motor 1
+sbit en2=P1^5;	//for enable motor 2
+sbit dc1=P1^1;	//motor1 term1
+sbit dc2=P1^2;	//motor1 term2
+sbit dc3=P1^3;	//motor2 term1
+sbit dc4=P1^4;	//motor2 term2
+
+sbit stm1=P3^4;	 //for stepper motor
+sbit stm2=P3^5;	 //
+sbit stm3=P3^6;	 //
+sbit stm4=P3^7;	 //
+
+unsigned int i;
+unsigned char ch,hc;
+
+void anti();
+void forward();
+void anti1();
+void forward1();
+void uart(void);
+void delay(unsigned int);
+void stp();
+void dc();
+
+void uart(void)
+{
+	TMOD=0X20;
+	TH1=0XFD;
+	SCON=0X52;
+	TR1=1;
+}
+
+void main()
+{
+	uart();
+	printf("\n PRESS D FOR DCMOTOR");
+	printf("\n PRESS T FOR STEPPERMOTOR");
+r:	
+	while(1)
+	{
+ 	scanf("%c \n",&hc);
+	switch(hc)
+	{
+		case 'D':
+			printf("\n THANK YOU FOR SELECTING DCMOTOR");
+			printf("\n PRESS A FOR ANTICLOCK");
+			printf("\n PRESS B FOR CLOCKWISE");
+			printf("\n PRESS C FOR RETURN");
+			dc();
+			if(ACC=='C')
+			goto r;
+			break;
+		case 'T': 
+			printf("\n THANK YOU FOR SELECTING STEPPERMOTOR");
+			printf("\n PRESS A FOR ANTICLOCK");
+			printf("\n PRESS B FOR CLOCKWISE");
+			printf("\n PRESS C FOR RETURN");
+			stp();
+			if(ACC=='C')
+			goto r;
+			break;
+		default:
+			printf("\n YOU HAVE ENTERED WRONG KEY SO PRESS RIGHT KEY");
+			break;
+	}
+	}
+}
+void dc()
+{
+	while(1)
+	{
+		scanf("%c \n",&ch);
+		switch(ch)
+		{
+			case 'A':
+			while(1)
+			{
+				anti1();
+				if(RI==1)
+					break;
+			}
+			break;
+			case 'B':
+			while(1)
+			{
+				forward1();
+				if(RI==1)
+					break;
+			}
+			break;
+			case 'C':
+				printf("\n PRESS D FOR DCMOTOR");
+				printf("\n PRESS T FOR STEPPERMOTOR");
+				return;
+			break;
+			default:
+				dc1=dc2=0;
+				break;
+		}
+	}			
+}
+void anti1()
+{
+	dc1=1;
+	dc2=0;
+	delay(1);
+}
+void forward1()
+{
+	dc1=0;
+	dc2=1;
+	delay(1);
+}
+void stp()
+{
+	while(1)
+	{
+   		scanf("%c \n",&ch);
+		switch(ch)
+		{
+			case 'A':
+			while(1)
+			{
+		    	anti();
+				if(RI==1)
+					break;
+			}
+			break;
+			case 'B':	
+			while(1)
+			{
+				forward();
+				if(RI==1)
+					break;
+			}
+			break;
+			case 'C':
+				printf("\n PRESS D FOR DCMOTOR");
+				printf("\n PRESS T FOR STEPPERMOTOR");
+				return;
+			break;
+			case 'S':
+				stm1=stm2=stm3=stm4=0;
+				break;
+		}
+	}
+}
+void anti()
+{
+	stm1=stm2=stm3=0;//anticlock wise
+	stm4=1;
+	delay(10);
+	stm1=stm2=stm4=0;
+	stm3=1;
+	delay(10);
+	stm1=stm3=stm4=0;
+	stm2=1;
+	delay(10);		
+	stm1=1;
+	stm2=stm3=stm4=0;
+	delay(10);
+}
+void forward()
+{
+	stm1=1;			//clockwise direction
+	stm2=stm3=stm4=0;
+	delay(10);
+	stm1=stm3=stm4=0;
+	stm2=1;
+	delay(10);
+	stm1=stm2=stm4=0;
+	stm3=1;
+	delay(10);
+	stm1=stm2=stm3=0;
+	stm4=1;
+	delay(10);			
+}					 
+void delay(unsigned int time)
+{
+	unsigned int i,j;
+	for (i=0;i<=time;i++)
+		for (j=0;j<=120;j++);
+}

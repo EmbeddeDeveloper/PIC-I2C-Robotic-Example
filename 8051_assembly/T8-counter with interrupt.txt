@@ -1,0 +1,320 @@
+;......t8 program....................
+
+ count  equ 30h
+ count1 equ 31h
+ count2 equ 32h
+ count3 equ 33h
+
+ ds1 equ 34h
+ ds2 equ 35h
+ ds3 equ 36h
+ ds4 equ 37h
+
+ scan_no equ 38h
+
+ sl1 bit p2.0
+ sl2 bit p2.1
+ sl3 bit p2.2
+ sl4 bit p2.3
+
+;..........main prog................................
+  
+ org 0000h
+ jmp main
+
+ org 000bh
+ ljmp isr_t0
+
+;...................................................
+ main:
+  mov scan_no,#00h
+  call timer
+
+  mov ds1,#"A"
+  mov ds2,#"B"
+  mov ds3,#"C"
+  mov ds4,#"D"
+back:
+
+  call	delay_1sec
+  call application
+
+  jmp back
+;...............................................
+;.......delay function................
+
+delay_1sec:
+
+   mov count1,#07h
+l2:
+   mov count2,#0ffh
+l1: 
+   mov count3,#0ffh
+   djnz count3,$
+   djnz count2,l1
+   djnz count1,l2
+
+   ret
+;....timer function.............
+
+timer:
+
+  orl tmod,#01h
+  mov th0,#0fch
+  mov tl0,#66h
+  setb tr0
+  setb ea
+  setb et0
+ 
+  ret
+;..................................................
+;.......interrupt timer0 function.................
+
+isr_t0:
+  
+  push acc
+  push dph			 ;.we are using dptr so that we use push inst.
+  push dpl
+  push psw
+
+  call timer
+  call scanner
+
+  pop psw
+  pop dpl
+  pop dph
+  pop acc
+
+  reti
+;..................................................
+;.......scanner or display function starts...............
+
+scanner:
+
+   mov a,scan_no
+   cjne a,#00h,check_1
+
+; ......disp1............
+;......1st step.........
+   clr sl1
+   setb sl2
+   setb sl3
+   setb sl4
+
+;.......2nd step.............
+   mov a,ds1
+   mov dptr,#pattern_table
+   clr c
+   subb a,#"0"
+   movc a,@a+dptr
+   mov p0,a
+
+;.......3rd step............
+   inc scan_no
+
+   ret
+
+check_1:
+
+   cjne a,#01h,check_2
+   inc scan_no
+  
+   ret
+
+check_2:
+  
+   cjne a,#02h,check_3
+   inc scan_no
+
+   ret
+
+check_3:
+
+   cjne a,#03h,check_4
+   inc scan_no
+   mov p0,#00h
+
+   ret
+
+check_4:
+ 
+   cjne a,#04h,check_5
+;....disp2............
+
+   setb sl1
+   clr sl2
+   setb sl3
+   setb sl4
+
+   mov a,ds2
+   mov dptr,#pattern_table
+   clr c
+   subb a,#"0"
+   movc a,@a+dptr
+   mov p0,a
+
+   inc scan_no
+
+   ret
+
+check_5:
+
+  cjne a,#05h,check_6
+   inc scan_no
+
+  ret
+
+check_6:
+   
+  cjne a,#06h,check_7
+  inc scan_no
+
+  ret
+
+check_7:
+
+  cjne a,#07h,check_8
+  inc scan_no
+  mov p0,#00h
+
+  ret
+
+check_8:
+
+   cjne a,#08h,check_9
+
+;....disp3............
+
+   setb sl1
+   setb sl2
+   clr  sl3
+   setb sl4
+
+   mov a,ds3
+   mov dptr,#pattern_table
+   clr c
+   subb a,#"0"
+   movc a,@a+dptr
+   mov p0,a
+
+   inc scan_no
+
+   ret
+
+check_9:
+
+  cjne a,#09h,check_10
+  inc scan_no
+
+  ret
+
+check_10:
+
+  cjne a,#0ah,check_11
+  inc scan_no
+
+  ret
+
+check_11:
+
+  cjne a,#0bh,check_12
+  inc scan_no
+  mov p0,#00h
+
+  ret
+
+check_12:
+
+   cjne a,#0ch,check_13
+;....disp4.............
+
+   setb sl1
+   setb sl2
+   setb sl3
+   clr  sl4
+
+   mov a,ds4
+   mov dptr,#pattern_table
+   clr c
+   subb a,#"0"
+   movc a,@a+dptr
+   mov p0,a
+
+   inc scan_no
+
+   ret
+
+check_13:
+
+  cjne a,#0dh,check_14
+  inc scan_no
+   
+  ret
+
+check_14:
+
+  cjne a,#0eh,check_15
+  inc scan_no
+
+  ret
+
+check_15:
+
+   cjne a,#0fh,check_16
+   mov p0,#00h
+
+   check_16:
+   mov scan_no,#00h
+   
+   ret
+
+;........scanner function end......................
+
+;.....application function...................
+
+Application:
+
+     mov a,ds4
+	 mov ds4,ds3
+	 mov ds3,ds2
+	 mov ds2,ds1
+	 inc ds1
+	 mov a,ds1
+	 cjne a,#"G",out
+	 mov ds1,#"0"
+
+out: 
+	 ret
+
+;....pattern table 0 to 9 and A to F.........
+
+pattern_table: 
+
+	db		11111100b	; 0 pattern
+	db		60h	        ; 1 pattern
+	db		0dah	        ; 2 pattern
+	db		0f2h	        ; 3 pattern
+	db		66h	        ; 4 pattern
+	db		0b6h	        ; 5 pattern
+	db		0beh	    	; 6 pattern
+	db		0e0h	    	; 7 pattern
+	db		0feh	    	; 8 pattern
+	db		0f6h	    	; 9 pattern
+	db  		0feh	    	; by pass value
+	db  		0feh	    	; by pass value
+	db  		0feh	    	; by pass value
+	db  		0feh		; by pass value
+	db  		0feh		; by pass value	
+	db  		0feh		; by pass value
+	db  		0feh		; by pass value
+	db		0eeh		; A pattern 
+	db		3eh		; B pattern
+	db      	9ch		; C pattern
+	db		7ah		; D pattern
+	db		9eh		; E pattern
+	db		8eh		; F pattern
+
+ 
+ 
+ 
+end  

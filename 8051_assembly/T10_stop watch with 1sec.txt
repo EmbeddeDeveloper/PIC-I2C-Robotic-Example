@@ -1,0 +1,507 @@
+		 
+count1   equ 30h					  ;variable for generating delay
+count2   equ 31h
+count3	 equ 32h
+count4   equ 33h
+count5   equ 41h
+
+ds1      equ 34h						  ;define byte variable for seven segment 1
+ds2      equ 35h						  ;define byte for seven segment 2
+ds3      equ 36h						  ;define byte for seven segment 3
+ds4      equ 37h						  ;define byte for seven segment 4
+								  
+scan_no  equ 38h					  ;by using this no. we can check that when and which interrupt comes
+
+krcount  equ 39h					  
+key_code equ 40h				  
+dcount   equ 42h
+
+nkp         bit  00h
+key_ready   bit  01h
+tb          bit  02h
+buzzer_flag bit  03h
+
+inc_flag    bit  04h
+dec_flag    bit  05h
+
+top_of_stack equ 60h
+buzzer bit p1.5
+
+sl1      bit p2.0					  ;define bit for row1
+sl2      bit p2.1					  ;define bit for row2
+sl3      bit p2.2					  ;define bit for row3
+sl4	     bit p2.3					  ;define bit for row4
+
+krl1     bit p2.4					  ;define bit for coloum1
+krl2     bit p2.5					  ;define bit for coloum2
+krl3     bit p2.6					  ;define bit for coloum3
+krl4     bit p2.7					  ;define bit for coloum4
+
+;...........main program.....................
+   org   0000h
+   jmp   main
+		 
+   org   000bh
+   ljmp  isr_t0
+;............................................
+main:
+   mov   ds1,#"0"
+   mov   ds2,#"0"
+   mov   ds3,#"0"
+   mov   ds4,#"0"
+   
+   clr inc_flag
+   clr dec_flag
+   mov   sp,#top_of_stack
+   mov   count4,#100d
+   mov   count5,#10d 
+   call  init_key
+   call  timer
+ 
+   setb  ea
+;.........Initialise the counter.............
+ 
+back:
+   jnb   key_ready,$
+   mov   dptr,#lut
+   mov   a,key_code
+   movc  a,@a+dptr
+   mov   key_code,a
+ //  mov   ds1,a
+  
+   call  key_process
+   call  key_release
+   jmp   back
+;............................................
+lut:
+   db "0123456789ABCDEF"
+;............................................
+;...........timer function...................
+timer:
+   orl   tmod,#01h
+   mov   th0,#0fch
+   mov   tl0,#66h
+   setb  tr0
+   setb  et0
+
+   ret
+;............................................
+;.........isr_t0 function....................
+isr_t0:
+
+   push  acc
+   push  dph
+   push  dpl
+   push  psw
+   
+   jnb buzzer_flag,buzz
+   cpl buzzer
+
+   buzz:
+   djnz  count4,N2
+   djnz  count5,N1
+
+   mov   count5,#10d
+   jnb   inc_flag,X1
+   call  increment
+X1:
+   jnb   dec_flag,X2
+   call  decrement
+N1:
+   mov count4,#100d
+N2:
+X2:
+out5:
+   call  timer
+   call  scanner
+ 
+   pop   psw
+   pop   dpl
+   pop   dph
+   pop   acc
+
+   reti
+;..........delay function....................  
+delay_1sec:
+
+   mov   count1,#07h
+l2:
+   mov   count2,#0ffh
+l1: 
+   mov   count3,#0ffh
+   djnz  count3,$
+   djnz  count2,l1
+   djnz  count1,l2
+
+   ret
+;............................................
+init_key:
+   setb  krl1
+   setb  krl2
+   setb  krl3
+   setb  krl4
+
+   mov   scan_no,#00d
+   mov   dcount,#33d
+   mov   krcount,#32d
+   
+   clr   key_ready
+   clr   nkp
+
+   ret
+;............................................
+;...........key_release function.............
+key_release:  
+   jnb   nkp,$
+   clr   key_ready
+   clr   nkp
+
+   ret
+;............................................
+;.............key_process function...........
+key_process:
+   mov a,key_code
+M0:
+   cjne a,#"A",M1
+   setb inc_flag
+   clr dec_flag
+   
+   ret
+M1:
+   cjne a,#"B",M2
+   clr inc_flag
+   clr dec_flag
+   
+   ret
+M2:
+   cjne a,#"C",M3
+   clr inc_flag
+   clr dec_flag
+   
+   mov ds1,#"0"
+   mov ds2,#"0"
+   mov ds3,#"0"
+   mov ds4,#"0"
+
+   ret
+M3:
+   cjne a,#"D",out1
+   clr inc_flag
+   setb dec_flag
+out1:
+   ret
+;............................................
+;.........scanner function................... 
+scanner:
+   mov   a,scan_no
+check_0:
+   cjne  a,#00h,check_1
+;.....disp 1.................................
+   clr   sl1
+   setb  sl2
+   setb  sl3
+   setb  sl4
+ 
+   call  disp1
+   mov   c,krl1
+   call  key
+   inc   scan_no
+
+   ret
+check_1:
+   cjne  a,#01h,check_2
+   mov   c,krl2
+   call  key
+   inc   scan_no
+    
+   ret
+check_2:
+   cjne  a,#02h,check_3
+   mov   c,krl3
+   call  key
+   inc   scan_no
+   
+   ret
+check_3:
+   cjne  a,#03h,check_4
+   mov   p0,#00h
+   mov   c,krl4
+   call  key
+   inc   scan_no
+
+   ret
+check_4:
+   cjne  a,#04h,check_5
+;....disp2...................................
+
+   setb  sl1
+   clr   sl2
+   setb  sl3
+   setb  sl4
+
+   call  disp2
+   mov   c,krl1
+   call  key
+   inc   scan_no
+
+   ret
+check_5:
+   cjne  a,#05h,check_6
+   mov   c,krl2
+   call  key
+   inc   scan_no
+
+   ret
+check_6: 
+   cjne  a,#06h,check_7
+   mov   c,krl3
+   call  key
+   inc   scan_no
+
+   ret
+check_7:
+   cjne  a,#07h,check_8
+   mov   p0,#00h
+   mov   c,krl4
+   call  key
+   inc   scan_no
+  
+   ret
+check_8:
+   cjne  a,#08h,check_9
+
+;....disp3...................................
+   setb  sl1
+   setb  sl2
+   clr   sl3
+   setb  sl4
+
+   call  disp3
+   mov   c,krl1
+   call  key
+   inc   scan_no
+   
+   ret
+check_9:
+   cjne  a,#09h,check_10
+   mov   c,krl2
+   call  key
+   inc   scan_no
+  
+   ret
+check_10 :
+   cjne  a,#0ah,check_11
+   mov   c,krl3
+   call  key
+   inc   scan_no
+  
+   ret
+check_11:
+   cjne  a,#0bh,check_12
+   mov   p0,#00h
+   mov   c,krl4
+   call  key
+   inc   scan_no
+  
+   ret
+check_12:
+   cjne  a,#0ch,check_13
+;....disp4...................................
+   setb  sl1
+   setb  sl2
+   setb  sl3
+   clr   sl4
+
+   call  disp4
+   mov   c,krl1
+   call  key
+   inc   scan_no
+   
+   ret
+check_13:
+   cjne  a,#0dh,check_14
+   mov   c,krl2
+   call  key
+   inc   scan_no
+   
+   ret
+check_14:
+   cjne  a,#0eh,check_15
+   mov   c,krl3
+   call  key
+   inc   scan_no
+  
+   ret
+check_15:
+   cjne  a,#0fh,check_16
+   mov   p0,#00h
+   mov   c,krl4
+   call  key
+check_16:
+   mov   scan_no,#00h
+   
+   ret
+;.........scanner function end...............
+;.........keypad function....................
+key:
+;.......key detect and debounce..............
+   jb    key_ready,release
+;..........key detection.....................
+   mov   tb,c
+   mov   a,dcount
+   cjne  a,#33d,debounce
+   mov   c,tb
+   jc    out
+   dec   dcount
+   mov   key_code,scan_no
+   jmp   out
+
+;..............debounce......................
+debounce:
+   mov   c,tb
+   djnz  dcount,out
+  
+   jc    T3
+   mov   dcount,#33d
+   setb  key_ready
+   setb  buzzer_flag	
+   jmp   out
+T3:
+   mov   dcount,#33d
+   jmp   out
+release:
+   jc    L3
+   mov   krcount,#32d
+   jmp   out
+L3:   	
+   djnz  krcount,out
+   setb  nkp
+   clr   buzzer_flag
+   mov   krcount,#32d
+   jmp   out
+out:
+   ret
+;............................................
+;..................display1..................
+disp1:
+   mov   dptr,#pattern_table 
+   mov   a,ds1
+   clr   c
+   subb  a,#"0"
+   movc  a,@a+dptr
+   mov   p0,a
+
+   ret
+;............................................
+;.................display2...................
+disp2:  
+   mov   a,ds2
+   mov   dptr,#pattern_table
+   clr   c
+   subb  a,#"0"
+   movc  a,@a+dptr
+   mov   p0,a
+
+   ret
+;............................................
+;...............display3.....................
+disp3:   
+   mov   a,ds3
+   mov   dptr,#pattern_table
+   clr   c
+   subb  a,#"0"
+   movc  a,@a+dptr
+   mov   p0,a
+
+   ret
+;............................................
+;..........display4..........................
+disp4:   
+   mov   a,ds4
+   mov   dptr,#pattern_table
+   clr   c
+   subb  a,#"0"
+   movc  a,@a+dptr
+   mov   p0,a
+
+   ret
+;............................................
+;...........display pattern..................
+pattern_table:
+   db  11111100b   ;for 0
+   db  01100000b   ;for 1 
+   db  11011010b   ;for 2
+   db  11110010b   ;for 3
+   db  01100110b   ;for 4
+   db  10110110b   ;for 5
+   db  10111110b   ;for 6
+   db  11100000b   ;for 7
+   db  11111110b   ;for 8
+   db  11110110b   ;for 9
+   db  11111110b   ; 
+   db  11111110b   ;
+   db  11111110b   ;
+   db  11111110b   ;
+   db  11111110b   ;
+   db  11111110b   ;
+   db  11111110b   ;
+   db  0eeh	       ;for ascii value of  A
+   db  3eh	 	   ;for ascii value of  B
+   db  9ch	 	   ;for ascii value of  C
+   db  7ah	 	   ;for ascii value of  D
+   db  9eh	  	   ;for ascii value of  E
+   db  8eh	 	   ;for ascii value of  F
+;............................................
+;............................................
+;-----Application function...................
+increment:   
+   inc    ds1
+   mov    r0,ds1
+   cjne   r0,#"A"+1,outt
+   mov    ds1,#"0"
+   
+   inc    ds2
+   mov    r1,ds2
+   cjne   r1,#"A"+1,outt
+   mov    ds2,#"0"
+   
+   inc    ds3
+   mov    r2,ds3
+   cjne   r2,#"A"+1,outt
+   mov    ds3,#"0"
+
+   inc    ds4
+   mov    r3,ds4
+   cjne   r3,#"A"+1,outt
+   mov    ds4,#"0"
+outt:
+   ret
+;............................................
+;............................................
+decrement:
+   dec    ds1
+   mov    r0,ds1
+   cjne   r0,#"0"-1,outtt
+   mov    ds1,#"9"
+   
+   dec    ds2
+   mov    r1,ds2
+   cjne   r1,#"0"-1,outtt
+   mov    ds2,#"9"
+   
+   dec    ds3
+   mov    r2,ds3
+   cjne   r2,#"0"-1,outtt
+   mov    ds3,#"9"
+
+   dec    ds4
+   mov    r3,ds4
+   cjne   r3,#"0"-1,outtt
+   mov    ds4,#"9"
+outtt:
+   ret
+
+;............................................
+end
+
+;******************THE END*******************

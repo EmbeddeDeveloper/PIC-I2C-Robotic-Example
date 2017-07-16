@@ -1,0 +1,30 @@
+#include <REG51F.H>
+
+void tx(unsigned char ch);
+void init_uart();
+unsigned char ch;
+unsigned char table[]={'R','O','N','A','K',' ','J','A','I','N'};
+void main()
+{
+	init_uart();
+	tx(ch);
+	while(1);
+}
+
+void init_uart()
+{
+	TMOD=0x20;
+	TH1=0xfd;
+	TR1=1;
+	SCON=0x50;
+}
+
+void tx(unsigned char ch)
+{
+	for(ch=0;ch<=9;ch++)
+	{
+		SBUF=table[ch];
+		while(!TI);
+		TI=0;
+	}
+}

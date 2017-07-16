@@ -1,0 +1,85 @@
+/*****************************************/
+/*---Row				Coloum
+	krl1=RA2				 sl1=RA1
+	krl2=RA3				 sl2=RC0
+	krl3=RA4				 sl3=RC1
+	krl4=RA5				 sl4=RC2-----*/
+/*****************************************/
+#include<pic.h>
+
+void row1()
+{
+	RA1=0;
+	RC0=RC1=RC2=1;
+	if(RA2==0)
+		PORTB=0xfc;
+	if(RA3==0)
+		PORTB=0x60;
+	if(RA4==0)
+		PORTB=0xda;
+	if(RA5==0)
+		PORTB=0xf2;
+}
+
+void row2()
+{
+	RA1=1;
+	RC0=0;
+	RC1=RC2=1;
+	if(RA2==0)
+		PORTB=0x66;
+	if(RA3==0)
+		PORTB=0xb6;
+	if(RA4==0)
+		PORTB=0xbe;
+	if(RA5==0)
+		PORTB=0xe0;
+}
+
+void row3()
+{
+	RA1=RC0=1;	
+	RC1=0;
+	RC2=1;
+	if(RA2==0)
+		PORTB=0xfe;
+	if(RA3==0)
+		PORTB=0xf6;
+	if(RA4==0)
+		PORTB=0xee;
+	if(RA5==0)
+		PORTB=0x3e;
+}
+
+void row4()
+{
+	RA1=RC0=RC1=1;
+	RC2=0;
+	if(RA2==0)
+		PORTB=0x9c;
+	if(RA3==0)
+		PORTB=0x7a;
+	if(RA4==0)
+		PORTB=0x9e;
+	if(RA5==0)
+		PORTB=0x8e;
+}
+
+void main()
+{
+	TRISB=0x00;
+	ADCON1=0x06;
+	TRISC=0x00;
+	TRISA=0xFD;
+	
+	RA2=RA3=RA4=RA5=1;
+	//PORTB=0xee;
+
+	while(1)	
+	{
+		row1();
+		row2();
+		row3();
+		row4();
+	}
+}

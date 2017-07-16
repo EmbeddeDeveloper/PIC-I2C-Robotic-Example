@@ -1,0 +1,31 @@
+//-- ssd using interrupt---//
+#include <REG51F.H>
+				   
+unsigned char disp=0;
+unsigned char seven_segment[]={0xfc,0x60,0xda,0xf2,0x66,0xb6,0xbe,0xe0,0xfe,0xec}; // binary pattern of 0-9
+unsigned char seg_selection[]={0xfe,0xfd,0xfb,0xf7};
+unsigned char disp_value_bcd[]={4,4,4,4};
+
+
+void isr_timer0() interrupt 1
+{
+	TH0=0xf8;
+	TL0=0x2f;
+	TR0=1;
+	P2=seg_selection[disp];
+	P0=seven_segment[disp_value_bcd[disp]];
+	disp++;
+	if(disp==4)
+		disp=0;
+}
+//---------------------------------//
+void main()
+{
+	TMOD=0x01;
+	TH0=0xf8;
+	TL0=0x2f;
+	TR0=ET0=EA=1;
+    	while(1);
+}
+
+

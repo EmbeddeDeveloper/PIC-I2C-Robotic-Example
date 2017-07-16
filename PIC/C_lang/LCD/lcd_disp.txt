@@ -1,0 +1,134 @@
+#include<pic.h>
+
+void data_wr(unsigned int);
+void cmd_wr(unsigned int);
+void init_lcd();
+void delay(unsigned int);
+void toggle();
+
+
+void main()
+{
+	TRISB=0x00;
+	init_lcd();
+	while(1)
+	{
+		cmd_wr(0x81);
+		data_wr('M');
+		delay(5);
+		data_wr('A');
+		delay(5);
+		data_wr('D');
+		delay(5);
+		data_wr('H');
+		delay(5);
+		data_wr('U');
+		delay(5);
+		data_wr('J');
+		delay(5);
+		data_wr('A');
+		delay(5);
+
+		delay(5);
+		delay(1000);
+
+		cmd_wr(0x01);
+		delay(5);
+
+		cmd_wr(0x81);
+		delay(5);
+		data_wr('R');
+		delay(5);
+		data_wr('O');
+		delay(5);
+		data_wr('N');
+		delay(5);
+		data_wr('A');
+		delay(5);
+		data_wr('K');
+		delay(5);
+
+		delay(5);
+		delay(1000);
+
+		cmd_wr(0x01);
+		delay(5);
+
+		cmd_wr(0x81);
+		delay(5);
+		data_wr('P');
+		delay(5);
+		data_wr('A');
+		delay(5);
+		data_wr('L');
+		delay(5);
+		data_wr('A');
+		delay(5);
+		data_wr('K');
+		delay(5);
+
+		delay(5);
+		delay(1000);
+	}
+}
+
+void init_lcd()
+{
+	delay(15);
+	cmd_wr(0x03);
+	delay(5);
+	cmd_wr(0x03);
+	delay(5);
+	cmd_wr(0x03);
+	delay(5);
+	cmd_wr(0x02);
+	delay(5);
+	cmd_wr(0x28);
+	delay(5);
+	cmd_wr(0x06);
+	delay(5);
+	cmd_wr(0x0f);
+	delay(5);
+	cmd_wr(0x01);
+	delay(5);
+}
+
+void cmd_wr(unsigned int ch)
+{
+	delay(5);
+	PORTB=(PORTB&0xf8);
+	PORTB=(PORTB&0x0f)|(ch&0xf0) ;
+	toggle();
+	PORTB=((PORTB&0x0f)|((ch<<4)&0xf0));
+	toggle();
+}
+
+void data_wr(unsigned int ch1)
+{
+	delay(5);
+	PORTB=(PORTB|0x02);
+	PORTB=(PORTB&0xfa);
+	PORTB=(PORTB&0x0f)|(ch1&0xf0);
+	toggle();
+	PORTB=((PORTB&0x0f)|((ch1<<4)&0xf0));
+	toggle();
+}
+void toggle()
+{
+	PORTB=(PORTB|0x08);
+	delay(3);
+	PORTB=(PORTB&0xf6);
+	delay(2);
+}
+void delay(unsigned int m)
+{
+	unsigned int w,e;
+	for(w=0;w<m;w++)
+	{
+		for(e=0;e<40;e++);
+	}
+}
+
+
+
+ 

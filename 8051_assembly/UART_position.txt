@@ -1,0 +1,56 @@
+/* this program is to display a char on particular position...*/
+org  0000h
+
+main:
+  call  init_uart
+  
+  mov   a,#1Bh
+  call  Tx
+
+  mov   a,"["
+  call  Tx
+
+  mov   a,"5"
+  call  Tx
+
+  mov   a,";"
+  call  Tx
+
+  mov   a,"7"
+  call  Tx
+
+  mov   a,"H"
+  call  Tx
+
+  mov   a,#"A"
+  call  Tx
+
+L1:
+  call  Rx
+  mov   p0,a
+  call  Tx
+  jmp   L1
+
+Tx:
+  jnb   ti,$
+  mov   sbuf,a
+  clr   ti			   
+
+  ret
+
+Rx:
+  jnb   ri,$
+  mov   a,sbuf
+  clr   ri
+
+  ret
+
+init_uart:
+  mov   scon,#52h
+  mov   tmod,#20h
+  mov   th1,#0fdh
+  setb  tr1
+
+  ret
+
+end

@@ -1,0 +1,130 @@
+				
+count equ 30h
+count1 equ 31h
+
+ds1 equ 32h
+ds2 equ 33h
+ds3 equ 34h
+ds4 equ 35h
+
+sl1 bit p2.0
+sl2 bit p2.1
+sl3 bit p2.2
+sl4 bit p2.3
+;,,,,,,,,,,,,,,main program,,,,,,,,,,,,,,,,,,,,,,
+
+org 0000h
+
+ mov ds1,#"D"
+ mov ds2,#"C"
+ mov ds3,#"B"
+ mov ds4,#"A"
+
+ back:
+  mov r0,#62h
+  main:
+   call display
+   djnz r0,main
+   jmp back
+
+;.........delay function.........
+Delay:
+  mov count,#04h
+ L1:
+  mov count1,#0ffh
+  djnz count1,$
+  djnz count,L1
+  ret
+
+;..............Display function..............
+ Display:
+
+  clr sl1
+  setb sl2
+  setb sl3
+  setb sl4
+
+  mov a,ds1
+  mov dptr,#display_pattern
+  clr c
+  subb a,#"0"
+  movc a,@a+dptr
+  mov p0,a
+   
+  call delay 
+
+  setb sl1
+  clr sl2
+  setb sl3
+  setb sl4
+
+  mov a,ds2
+  mov dptr,#display_pattern
+  clr c
+  subb a,#"0"
+  movc a,@a+dptr
+  mov p0,a 
+
+  call delay
+
+  setb sl1
+  setb sl2
+  clr sl3
+  setb sl4 
+
+  mov a,ds3
+  mov dptr,#display_pattern
+  clr c
+  subb a,#"0"
+  movc a,@a+dptr
+  mov p0,a
+   
+
+  call delay
+
+  setb sl1
+  setb sl2
+  setb sl3
+  clr sl4
+
+  mov a,ds4
+  mov dptr,#display_pattern
+  clr c
+  subb a,#"0"
+  movc a,@a+dptr
+  mov p0,a
+
+  call delay
+
+  ret
+   
+ display_pattern:
+ 
+ db  11111100b   ;for 0
+ db  01100000b   ;for 1 
+ db  11011010b   ;for 2
+ db  11110010b   ;for 3
+ db  01100110b   ;for 4
+ db  10110110b	 ;for 5
+ db  10111110b   ;for 6
+ db  11100000b   ;for 7
+ db  11111110b   ;for 8
+ db  11110110b   ;for 9
+ db  11111110b	 ;
+ db  11111110b	 ;
+ db  11111110b	 ;
+ db  11111110b	 ;
+ db  11111110b	 ;
+ db  11111110b	 ;
+ db  11111110b	 ;
+ db  0eeh	 ;for ascii value of  A
+ db  3eh	 ;for ascii value of  B
+ db  9ch	 ;for ascii value of  C
+ db  7ah	 ;for ascii value of  D
+ db  9eh	 ;for ascii value of  E
+ db  8eh	 ;for ascii value of  F
+
+;......................................
+
+
+end 

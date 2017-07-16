@@ -1,0 +1,102 @@
+#include <REG51F.H>
+#include<stdio.h>
+void uart(void);
+void delay(unsigned int time);
+void forward();
+void reverse();
+void stop();
+sbit stm1=P3^4;
+sbit stm2=P3^5;
+sbit stm3=P3^6;
+sbit stm4=P3^7;
+void rx();
+unsigned char ch;
+void main()
+{
+	uart();
+	//	scanf("%c",&ch);
+	while(1)
+	{
+		rx();
+		switch(ch)
+		{
+			case 'A':
+			while(1)
+			{
+				 forward();
+				 if(RI==1)
+				 	break;
+			}
+			break;
+			case 'B':
+			while(1)
+			{
+				reverse();
+				if(RI==1)
+					break;
+			}
+			break;
+			default:
+			while(1)
+			{
+				stop();
+			}
+		}
+	}
+}
+void delay(unsigned int time)
+{
+	unsigned int i,j;
+	for (i=0;i<time;i++)
+	for (j=0;j<120;j++);
+}
+void forward()
+{
+	stm1=1;			//clockwise direction
+	stm2=stm3=stm4=0;
+	delay(10);
+	stm1=stm3=stm4=0;
+	stm2=1;
+	delay(10);
+	stm1=stm2=stm4=0;
+	stm3=1;
+	delay(10);
+	stm1=stm2=stm3=0;
+	stm4=1;
+	delay(10);	
+}
+void reverse()
+{
+	stm1=stm2=stm3=0;//anticlock wise
+	stm4=1;
+	delay(10);
+	stm1=stm2=stm4=0;
+	stm3=1;
+	delay(10);
+	stm1=stm3=stm4=0;
+	stm2=1;
+	delay(10);		
+	stm1=1;
+	stm2=stm3=stm4=0;
+	delay(10);
+}
+void stop()
+{
+	stm1=0;
+	stm2=0;
+	stm3=0;
+	stm4=0;
+}
+void rx()
+{
+	while(RI==0);
+	ch=SBUF;
+	RI=0;
+}
+void uart(void)
+{
+	TMOD=0X20;
+	TH1=0XFD; 
+	TR1=1;
+	SCON=0X50;
+}

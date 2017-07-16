@@ -1,0 +1,24 @@
+#include<pic.h>
+unsigned char ds1;
+void delay(unsigned int time);
+unsigned char pattern[]={0x18,0x24,0x42,0x81,0x42,0x24,0x18};
+void main()
+{
+	TRISB=0x00;
+	ds1=0;
+	while(1)
+	{
+		for(ds1=0;ds1<7;ds1++)
+		{
+			delay(1000);
+			PORTB=pattern[ds1];
+		}
+	}
+}
+
+void delay(unsigned int time)
+{
+	unsigned int i,j;
+	for(i=0;i<time;i++)
+		for(j=0;j<40;j++);
+}

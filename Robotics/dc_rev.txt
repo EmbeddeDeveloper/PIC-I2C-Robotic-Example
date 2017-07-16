@@ -1,0 +1,55 @@
+// DC motor reverse //
+
+#include<reg51.h>
+
+//--------------------------------//
+sbit	en12=P1^0;		//enable pin for motor1	 
+sbit	en34=P1^5;		//enable pin for motor2
+
+sbit	inp1=P1^1;		// i/p1 for motor1
+sbit	inp2=P1^2;		// i/p2 for motor1
+sbit	inp3=P1^3;		// i/p1 for motor2
+sbit	inp4=P1^4;		// i/p2 for motor2
+
+void delay(unsigned int);
+//---------------------------------//
+
+void main()
+{
+	en12=1;
+	en34=1;
+
+	while(1)
+	{
+	 inp1=0;		//motor1 rotate reverse
+	 inp2=1;		//
+     
+ 	 inp3=0;		//motor2 rotate reverse
+	 inp4=1;		//
+		
+	 delay(1000);
+
+	 inp1=0;		//motor1 stop
+	 inp2=0;		//
+
+	 inp3=0;		//motor2 stop
+	 inp4=0;		//
+
+	 delay(1000);
+	}
+}
+
+//----------------------------------//
+void delay(unsigned int time)
+{
+ unsigned int i,j;
+ for(i=0;i<time;i++)
+ for(j=0;j<=150;j++);
+}
+
+
+//--------END OF PROGRAM-----------//
+
+
+
+

@@ -1,0 +1,27 @@
+/*without using prescaler*/
+
+#include<pic.h>
+void init_timer();
+void main()
+{
+	unsigned int i;
+	TRISB=0x00;	//select as a o/p
+	while(1)
+	{
+		PORTB=0xaa;
+		for(i=0;i<20;i++)
+		init_timer();
+		PORTB=0x00;
+		for(i=0;i<20;i++)
+		init_timer();
+	}
+}
+void init_timer()
+{
+	T1CON=0x00;		//prescaler not selected
+	TMR1H=0x3c;		//for 50ms..
+	TMR1L=0xb0;
+	TMR1ON=1;
+	while(TMR1IF==0);
+	TMR1IF=0;
+}

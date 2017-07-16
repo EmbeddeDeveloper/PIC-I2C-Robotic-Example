@@ -1,0 +1,71 @@
+#include <REG51F.H>
+
+unsigned int number[]={0xfc,0x60,0xda,0xf2,0x66,0xb6,0x3e,0xe0,0xfe,0xe6};
+unsigned char ds0,ds1,ds2,ds3;
+unsigned char k;
+
+sbit sw1=P2^0;
+sbit sw2=P2^1;
+sbit sw3=P2^2;
+sbit sw4=P2^3;
+
+void display();
+void application();
+void delay(unsigned int time);
+
+void main()
+{
+	ds0=0;
+	ds1=1;
+	ds2=2;
+	ds3=3;
+	while(1)
+	{
+		for (k=0;k<25;k++)
+		display();
+		application();
+	}
+}
+
+void display()
+{
+	sw1=0;
+	sw2=sw3=sw4=1;
+	P0=number[ds0];
+	delay(5);
+
+	sw2=0;
+	sw1=sw3=sw4=1;
+	P0=number[ds1];
+	delay(5);
+
+	sw3=0;
+	sw1=sw2=sw4=1;
+	P0=number[ds2];
+	delay(5);
+
+	sw4=0;
+	sw1=sw2=sw3=1;
+	P0=number[ds3];
+	delay(5);
+}
+
+void application()
+{
+	ACC=ds3;
+	ds3=ds2;
+	ds2=ds1;
+	ds1=ds0;
+	ds0++;
+        if(ds0==10)
+	{
+		ds0=0;
+	}	
+}
+
+void delay(unsigned int time)
+{
+	unsigned int i,j;
+	for (j=0;j<time;j++)
+	for (i=0;i<120;i++);
+}

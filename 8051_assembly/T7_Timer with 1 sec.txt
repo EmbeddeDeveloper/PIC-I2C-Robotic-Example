@@ -1,0 +1,36 @@
+count equ 30h
+
+org 0000h
+
+main:
+
+   mov r0,#20d
+L1:
+   mov p0,#0ffh
+   call timer
+   djnz r0,L1
+
+   mov r0,#20d
+L2:
+   mov p0,#00h
+   call timer
+   djnz r0,L2
+  
+   jmp main
+ 
+;..........timer function.........
+Timer:
+  orl tmod,#01h
+  mov th0,#4bh
+  mov tl0,#0ffh
+
+  setb tr0
+
+  jnb tf0,$
+
+  clr tf0
+  clr tr0
+
+ ret
+
+ end

@@ -1,0 +1,150 @@
+
+count  equ 30h
+count1 equ 31h
+
+sl1  bit p2.0
+sl2  bit p2.1
+sl3  bit p2.2
+sl4  bit p2.3
+
+krl1 bit p2.4
+krl2 bit p2.5
+krl3 bit p2.6
+krl4 bit p2.7
+
+;...........main program...............
+org 0000h
+
+	setb krl1
+  	setb krl2
+  	setb krl3
+  	setb krl4
+;...........main function..............
+main:
+
+  	clr  sl1
+  	setb sl2 
+  	setb sl3
+  	setb sl4
+
+check:
+  	jb krl1,check2
+  	call delay
+  	jb krl1,check
+  	mov p0,#01h
+
+check1:
+ 	jnb krl1,check1
+ 	call delay
+ 	jnb krl1,check1
+ 	mov p0,#00h
+
+check2:
+  	jb krl2,check4
+  	call delay
+  	jb krl2,check2
+  	mov p0,#02h
+
+check3:
+ 	jnb krl2,check3
+ 	call delay
+ 	jnb krl2,check3
+ 	mov p0,#00h
+
+check4:
+  	jb krl3,check6
+  	call delay
+  	jb krl3,check4
+  	mov p0,#04h
+
+check5:
+ 	jnb krl3,check5
+	call delay
+ 	jnb krl3,check5
+ 	mov p0,#00h
+
+check6:
+  	jb krl4,out1
+  	call delay
+  	jb krl4,check6
+  	mov p0,#08h
+
+check7:
+ 	jnb krl4,check7
+ 	call delay
+ 	jnb krl4,check7
+ 	mov p0,#00h
+
+out1:
+//...............row 2..........................................//
+  setb sl1
+  clr  sl2 
+  setb sl3
+  setb sl4
+
+check8:
+  	jb krl1,check10
+  	call delay
+  	jb krl1,check8
+  	mov p0,#10h
+
+check9:
+ 	jnb krl1,check9
+ 	call delay
+ 	jnb krl1,check9
+ 	mov p0,#00h
+
+check10:
+ 	jb krl2,check12
+  	call delay
+  	jb krl2,check10
+  	mov p0,#20h
+
+check11:
+ 	jnb krl2,check11
+ 	call delay
+ 	jnb krl2,check11
+ 	mov p0,#00h
+
+check12:
+ 	jb krl3,check14
+  	call delay
+  	jb krl3,check12
+  	mov p0,#040h
+
+check13:
+ 	jnb krl3,check13
+ 	call delay
+ 	jnb krl3,check13
+ 	mov p0,#00h
+
+check14:
+  	jb krl4,out2
+  	call delay
+  	jb krl4,check14
+  	mov p0,#80h
+
+check15:
+ 	jnb krl4,check15
+ 	call delay
+ 	jnb krl4,check15
+ 	mov p0,#00h
+
+out2:
+;..........................................
+	jmp main
+
+
+;..............delay function............
+delay:
+   	mov count1,#24h
+l1:
+   	mov count,#0ffh
+   	djnz count,$
+   	djnz count1,l1
+
+ 	ret
+;.........................................
+
+
+end

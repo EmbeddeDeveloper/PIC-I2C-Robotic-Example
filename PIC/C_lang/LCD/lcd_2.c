@@ -1,0 +1,77 @@
+#include<pic.h>
+
+void data_wr(unsigned int);
+void cmd_wr(unsigned int);
+void init_lcd();
+void delay(unsigned int time);
+void toggle();
+
+
+void main()
+{
+	RB0=0;
+	TRISB=0x00;
+	init_lcd();
+
+	data_wr('R');
+	data_wr('O');
+	data_wr('N');
+	data_wr('A');
+	data_wr('K');
+	data_wr(' ');
+	data_wr('J');
+	data_wr('A');
+	data_wr('I');
+	data_wr('N');
+	while(1);
+}
+
+void init_lcd()
+{
+	delay(15);
+
+	cmd_wr(0x03);
+	cmd_wr(0x03);
+	cmd_wr(0x03);
+	cmd_wr(0x02);
+	
+	cmd_wr(0x28);
+	cmd_wr(0x06);
+	cmd_wr(0x0c);
+	cmd_wr(0x01);
+}
+
+void cmd_wr(unsigned int ch)
+{
+	delay(5);
+	RB1=RB2=0;
+	PORTB=(PORTB&0x0f)|(ch&0xf0) ;
+	toggle();
+	PORTB=((PORTB&0x0f)|((ch<<4)&0xf0));
+	toggle();
+}
+
+void data_wr(unsigned int ch1)
+{
+	delay(5);
+	RB1=1;
+	RB2=0;
+	PORTB=(PORTB&0x0f)|(ch1&0xf0);
+	toggle();
+	PORTB=((PORTB&0x0f)|((ch1<<4)&0xf0));
+	toggle();
+}
+void toggle()
+{
+	RB3=1;
+	delay(3);
+	RB3=0;
+	delay(2);
+}
+
+void delay(unsigned int time)
+{
+	unsigned int i,j;
+	for(i=0;i<time;i++)
+		for(j=0;j<40;j++);
+} 

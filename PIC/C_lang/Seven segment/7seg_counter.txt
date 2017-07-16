@@ -1,0 +1,81 @@
+#include<pic.h>
+
+void display();
+void delay(unsigned int time);
+void counter();
+unsigned char ds1,ds2,ds3,ds4,k;
+unsigned char lut[]={0xfc,0x60,0xda,0xf2,0x66,0xb6,0xbe,0xe0,0xfe,0xf6};
+//=============================================================================
+void main()
+{	
+	TRISB=TRISA=TRISC=0;//PortA,B,C made as output
+	ds1=ds2=ds3=ds4=0;
+	while(1)
+	{
+		for(k=0;k<50;k++)
+		{
+			display();
+		}
+        counter();
+    }
+}
+
+void counter()
+{
+  	ds1++;
+   	if(ds1==10)
+  	{ 
+    	ds1=0;
+     	ds2++;
+      	if(ds2==10)
+   		{
+     		ds2=0;
+      		ds3++;
+       		if(ds3==10)
+    		{
+       			ds3=0;
+				ds4++;
+         		if(ds4==10)
+    			{
+     				ds1=ds2=ds3=ds4=0;
+				}
+	  		}
+	 	}
+   	}
+}
+
+void display()
+{
+	RA1=0;
+	RC0=RC1=RC2=1;
+	PORTB=lut[ds1];
+	delay(7);
+
+	RC0=0;
+	RA1=RC1=RC2=1;
+	PORTB=lut[ds2];
+	delay(7);			
+
+	RC1=0;
+	RA1=RC0=RC2=1;
+	PORTB=lut[ds3];
+	delay(7);
+
+	RA1=RC0=RC1=1;
+	RC2=0;
+	PORTB=lut[ds4];
+	delay(7);
+}
+
+void delay(unsigned int time)
+{
+ 	unsigned int i,j;
+	for(i=0;i<time;i++)
+    for(j=0;j<40;j++);
+}
+//-------------------------------------------------------
+
+/*
+output on 7 seg display=ds1=(0123416789)
+continously increment 0 to 9 on ds1
+*/

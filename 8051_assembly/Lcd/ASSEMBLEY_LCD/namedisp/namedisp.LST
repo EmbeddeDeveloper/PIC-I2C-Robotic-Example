@@ -1,0 +1,306 @@
+A51 MACRO ASSEMBLER  NAMEDISP                                                             12/05/2008 13:49:26 PAGE     1
+
+
+MACRO ASSEMBLER A51 V7.09
+NO OBJECT MODULE REQUESTED
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE namedisp.ASM SET(SMALL) DEBUG EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1             a0      bit     A.0
+*** _________________________________________________^
+*** ERROR #A9 IN 1 (namedisp.ASM, LINE 1): SYNTAX ERROR
+                       2             a1      bit     A.1
+*** _________________________________________________^
+*** ERROR #A9 IN 2 (namedisp.ASM, LINE 2): SYNTAX ERROR
+                       3             a2      bit     A.2
+*** _________________________________________________^
+*** ERROR #A9 IN 3 (namedisp.ASM, LINE 3): SYNTAX ERROR
+                       4             a3      bit     A.3
+*** _________________________________________________^
+*** ERROR #A9 IN 4 (namedisp.ASM, LINE 4): SYNTAX ERROR
+                       5             a4      bit     A.4
+*** _________________________________________________^
+*** ERROR #A9 IN 5 (namedisp.ASM, LINE 5): SYNTAX ERROR
+                       6             a5      bit     A.5
+*** _________________________________________________^
+*** ERROR #A9 IN 6 (namedisp.ASM, LINE 6): SYNTAX ERROR
+                       7             a6      bit     A.6
+*** _________________________________________________^
+*** ERROR #A9 IN 7 (namedisp.ASM, LINE 7): SYNTAX ERROR
+                       8             a7      bit     A.7
+*** _________________________________________________^
+*** ERROR #A9 IN 8 (namedisp.ASM, LINE 8): SYNTAX ERROR
+                       9     
+  0081                10             rs      bit     p0.1
+  0082                11             rw      bit     p0.2
+  0083                12             e       bit     p0.3
+  0084                13             d4      bit     p0.4
+  0085                14             d5      bit     p0.5
+  0086                15             d6      bit     p0.6
+  0087                16             d7      bit     p0.7
+                      17             
+  0030                18             dcount_1        equ     30h
+  0031                19             dcount_2        equ     31h
+  0032                20             dcount_3        equ     32h
+  0033                21             count16         equ     33h
+                      22     ;----------------------------------------
+0000                  23             org     0000h
+0000                  24     init:   
+0000 1155             25             call    init_lcd1
+0002                  26             call    clear_display
+*** _________________________________________^
+*** ERROR #A45 IN 26 (namedisp.ASM, LINE 26): UNDEFINED SYMBOL (PASS-2)
+0005 90000C           27             mov     dptr,#m_sw
+0008 112F             28             call    wr_lcd_msg16
+000A 110C             29             call    m_sw
+000C                  30     m_sw:
+                      31     ;               "-1234567890123456-"
+000C 20207072         32             db       "  prerna         "
+0010 65726E61                
+0014 20202020                
+0018 20202020                
+001C 20                      
+001D 2A2A2A2A         33             db       "*****************"
+0021 2A2A2A2A                
+0025 2A2A2A2A                
+0029 2A2A2A2A                
+A51 MACRO ASSEMBLER  NAMEDISP                                                             12/05/2008 13:49:26 PAGE     2
+
+002D 2A                      
+002E 22               34             ret
+                      35     
+                      36     
+002F                  37     wr_lcd_msg16:
+002F                  38             mov     count16#00
+*** ________________________________________________^
+*** ERROR #A9 IN 38 (namedisp.ASM, LINE 38): SYNTAX ERROR
+0032                  39             push    a
+*** _________________________________________^
+*** ERROR #A22 IN 39 (namedisp.ASM, LINE 39): EXPRESSION TYPE DOES NOT MATCH INSTRUCTION
+0032 7400             40     wr_l1:  mov     a,#00h
+0034 93               41             movc    a,@a+dptr
+0035 B40302           42             cjne    a,#03h,wr_l2
+0038 8011             43             jmp     out_wr
+                      44     
+003A 119F             45     wr_l2:  call    lcd_dw
+003C A3               46             inc     dptr
+                      47     
+003D 0533             48             inc     count16
+003F E533             49             mov     a,count16
+0041 B410EE           50             cjne    a,#16d,wr_l1
+                      51     
+0044 74A8             52             mov     a,#10101000b
+0046                  53             call    mov_lcd_cursor
+*** _________________________________________^
+*** ERROR #A45 IN 53 (namedisp.ASM, LINE 53): UNDEFINED SYMBOL (PASS-2)
+0049 80E7             54             jmp     wr_l1
+                      55     
+004B                  56     out_wr:
+004B                  57             pop     a
+*** _________________________________________^
+*** ERROR #A22 IN 57 (namedisp.ASM, LINE 57): EXPRESSION TYPE DOES NOT MATCH INSTRUCTION
+004B 22               58             ret
+                      59     ;----------------------------------
+004C                  60     clear_disp:
+004C                  61             push    a
+*** _________________________________________^
+*** ERROR #A22 IN 61 (namedisp.ASM, LINE 61): EXPRESSION TYPE DOES NOT MATCH INSTRUCTION
+004C 11CB             62             call    busy
+004E 7401             63             mov     a,#00000001b
+0050 1188             64             call    lcd_cw
+0052 11DB             65             call    wait_5ms
+0054                  66             pop     a
+*** _________________________________________^
+*** ERROR #A22 IN 66 (namedisp.ASM, LINE 66): EXPRESSION TYPE DOES NOT MATCH INSTRUCTION
+0054 22               67             ret
+0055                  68     init_lcd1:
+0055 11DB             69             call    wait_5ms
+0057 11DB             70             call    wait_5ms
+0059 11DB             71             call    wait_5ms
+                      72     
+005B 7430             73             mov     a,#30h
+005D 1196             74             call    lcd_cw0
+                      75     
+005F 11DB             76             call    wait_5ms
+0061 7430             77             mov     a,#30h
+0063 1196             78             call    lcd_cw0
+                      79     
+0065 11DB             80             call    wait_5ms
+0067 7430             81             mov     a,#30h
+0069 1196             82             call    lcd_cw0
+                      83     
+006B 11DB             84             call    wait_5ms
+006D 7420             85             mov     a,#20h
+006F 1196             86             call    lcd_cw0
+A51 MACRO ASSEMBLER  NAMEDISP                                                             12/05/2008 13:49:26 PAGE     3
+
+                      87     
+                      88     
+0071                  89     init_lcd:
+0071 7401             90             mov     a,#00000001b            ;clear display
+0073 1188             91             call    lcd_cw
+                      92     
+0075 7406             93             mov     a,#00000110b            ;incriment curser & shift display
+0077 1188             94             call    lcd_cw
+                      95     
+0079 740E             96             mov     a,#00001110b            ;enable display curser
+007B 1188             97             call    lcd_cw
+                      98     
+007D 7414             99             mov     a,#00010100b            ;mov curser & shift display
+007F 1188            100             call    lcd_cw
+                     101     
+0081 742C            102             mov     a,#00101100b            ;set interface length
+0083 1188            103             call    lcd_cw
+0085 C280            104             clr     p0.0
+0087 22              105             ret
+                     106     
+0088                 107     mov_lcd_curser:
+0088                 108     lcd_cw: 
+                     109             
+0088 C281            110             clr     rs
+008A C282            111             clr     rw
+008C 11AF            112             call    map
+008E 11C0            113             call    toggle_e
+                     114     
+0090 C4              115             swap    a
+                     116     
+0091 11AF            117             call    map
+0093 11C0            118             call    toggle_e
+                     119             
+0095 22              120             ret
+0096                 121     lcd_cw0:
+0096 11AF            122             call    map
+0098 C281            123             clr     rs
+009A C282            124             clr     rw
+009C 11C0            125             call    toggle_e
+009E 22              126             ret
+009F                 127     lcd_dw:
+009F                 128             push    a
+*** _________________________________________^
+*** ERROR #A22 IN 128 (namedisp.ASM, LINE 128): EXPRESSION TYPE DOES NOT MATCH INSTRUCTION
+009F 11CB            129             call    busy    
+00A1 11AF            130             call    map
+00A3 D281            131             setb    rs
+00A5 C282            132             clr     rw
+                     133     
+00A7 11C0            134             call    toggle_e
+                     135     
+00A9 C4              136             swap    a
+                     137     
+00AA 11AF            138             call    map
+00AC 11C0            139             call    toggle_e
+00AE                 140             pop     a
+*** _________________________________________^
+*** ERROR #A22 IN 140 (namedisp.ASM, LINE 140): EXPRESSION TYPE DOES NOT MATCH INSTRUCTION
+00AE 22              141             ret
+00AF                 142     map:    
+00AF                 143             mov     c,a4
+*** ___________________________________________^
+*** ERROR #A45 IN 143 (namedisp.ASM, LINE 143): UNDEFINED SYMBOL (PASS-2)
+00B1 9284            144             mov     d4,c
+                     145     
+00B3                 146             mov     c,a5
+A51 MACRO ASSEMBLER  NAMEDISP                                                             12/05/2008 13:49:26 PAGE     4
+
+*** ___________________________________________^
+*** ERROR #A45 IN 146 (namedisp.ASM, LINE 146): UNDEFINED SYMBOL (PASS-2)
+00B5 9285            147             mov     d5,c
+                     148     
+00B7                 149             mov     c,a6
+*** ___________________________________________^
+*** ERROR #A45 IN 149 (namedisp.ASM, LINE 149): UNDEFINED SYMBOL (PASS-2)
+00B9 9286            150             mov     d6,c
+                     151     
+00BB                 152             mov     c,a7
+*** ___________________________________________^
+*** ERROR #A45 IN 152 (namedisp.ASM, LINE 152): UNDEFINED SYMBOL (PASS-2)
+00BD 9287            153             mov     d7,c
+                     154     
+00BF 22              155             ret
+00C0                 156     toggle_e:
+00C0 00              157             nop
+00C1 D283            158             setb    e
+00C3 00              159             nop
+00C4 00              160             nop
+00C5 00              161             nop
+00C6 00              162             nop
+00C7 C283            163             clr     e
+00C9 00              164             nop
+00CA 22              165             ret
+                     166     ;-------------------------------------
+00CB                 167     busy:
+00CB D287            168             setb    d7
+00CD C281            169             clr     rs
+00CF D282            170             setb    rw
+00D1 00              171             nop
+00D2 D283            172             setb    e
+00D4 00              173             nop
+00D5 A287            174             mov     c,d7
+00D7 00              175             nop
+00D8 C283            176             clr     e
+00DA 22              177             ret
+00DB                 178     wait_5ms:
+00DB 753002          179             mov     dcount_1,#2
+00DE 753164          180     l2:     mov     dcount_2,#100
+00E1 7532FA          181     l1:     mov     dcount_3,#250
+00E4 D532FD          182             djnz    dcount_3,$
+00E7 D531F7          183             djnz    dcount_2,l1
+00EA D532F1          184             djnz    dcount_3,l2
+00ED 22              185             ret
+                     186     end
+A51 MACRO ASSEMBLER  NAMEDISP                                                             12/05/2008 13:49:26 PAGE     5
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+A0 . . . . . . . .    ----   -----       
+A1 . . . . . . . .    ----   -----       
+A2 . . . . . . . .    ----   -----       
+A3 . . . . . . . .    ----   -----       
+A4 . . . . . . . .    ----   -----       
+A5 . . . . . . . .    ----   -----       
+A6 . . . . . . . .    ----   -----       
+A7 . . . . . . . .    ----   -----       
+BUSY . . . . . . .  C ADDR   00CBH   A   
+CLEAR_DISP . . . .  C ADDR   004CH   A   
+CLEAR_DISPLAY. . .    ----   -----       
+COUNT16. . . . . .  N NUMB   0033H   A   
+D4 . . . . . . . .  B ADDR   0080H.4 A   
+D5 . . . . . . . .  B ADDR   0080H.5 A   
+D6 . . . . . . . .  B ADDR   0080H.6 A   
+D7 . . . . . . . .  B ADDR   0080H.7 A   
+DCOUNT_1 . . . . .  N NUMB   0030H   A   
+DCOUNT_2 . . . . .  N NUMB   0031H   A   
+DCOUNT_3 . . . . .  N NUMB   0032H   A   
+E. . . . . . . . .  B ADDR   0080H.3 A   
+INIT . . . . . . .  C ADDR   0000H   A   
+INIT_LCD . . . . .  C ADDR   0071H   A   
+INIT_LCD1. . . . .  C ADDR   0055H   A   
+L1 . . . . . . . .  C ADDR   00E1H   A   
+L2 . . . . . . . .  C ADDR   00DEH   A   
+LCD_CW . . . . . .  C ADDR   0088H   A   
+LCD_CW0. . . . . .  C ADDR   0096H   A   
+LCD_DW . . . . . .  C ADDR   009FH   A   
+MAP. . . . . . . .  C ADDR   00AFH   A   
+MOV_LCD_CURSER . .  C ADDR   0088H   A   
+MOV_LCD_CURSOR . .    ----   -----       
+M_SW . . . . . . .  C ADDR   000CH   A   
+OUT_WR . . . . . .  C ADDR   004BH   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+RS . . . . . . . .  B ADDR   0080H.1 A   
+RW . . . . . . . .  B ADDR   0080H.2 A   
+TOGGLE_E . . . . .  C ADDR   00C0H   A   
+WAIT_5MS . . . . .  C ADDR   00DBH   A   
+WR_L1. . . . . . .  C ADDR   0032H   A   
+WR_L2. . . . . . .  C ADDR   003AH   A   
+WR_LCD_MSG16 . . .  C ADDR   002FH   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 21 ERROR(S)

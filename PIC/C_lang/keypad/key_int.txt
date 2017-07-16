@@ -1,0 +1,386 @@
+#include<pic.h>
+
+unsigned char pattern[]={0x0FC,0x60,0x0DA,0x0F2,0x66,0x0B6,0x0BE,0x0E0,0x0FE,0x0E6,
+						0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,
+						0xee,0x3e,0x9c,0x7a,0x9e,0x8e};
+
+unsigned char asciikey[]={'0','1','2','3','4','5','6','7','8','9',
+                            'A','B','C','D','E','F'};
+
+unsigned char scan_no,temp,carry;
+unsigned char dcnt,krcnt;
+unsigned char key_ready,nkp;
+unsigned char ds1,ds2,ds3,ds4;
+unsigned char keycode;
+
+void init_main();
+void init_keypad();
+void init_timer1();
+void intr_en();
+
+void get_key();
+void key_release();
+
+void scanner();
+void k();
+
+void disp1();
+void disp2();
+void disp3();
+void disp4();
+  
+void delay(unsigned int time);
+
+//----------------------------------------------------------------------------------
+interrupt void isr_t1(void)
+{
+    	init_timer1();  
+		scanner();
+    	
+    	temp=PIR1;			//clearing overflow flag...
+    	temp=temp & 0xFE;
+    	PIR1=temp;
+}
+//==================================================================================
+void main()
+{
+  	init_main();
+  	init_keypad();
+  	init_timer1();
+  	intr_en();
+  	while(1)
+    {
+      		get_key();
+	}
+}
+//----------------------------------------------------------------------------------
+void get_key()
+{
+   	while(key_ready!=0)
+	{
+    	keycode=asciikey[keycode];
+		ds1=keycode;
+        key_release();
+	} 
+}
+//----------------------------------------------------------------------------------
+void key_release()
+{
+  	while(!nkp);
+  	key_ready=nkp=0;
+}
+//----------------------------------------------------------------------------------
+void init_main()
+{
+  	ADCON1=0X06;	//digital format selected 
+  
+  	//TRISA=0X00;		//make o/p direction
+  	//PORTA=0XFF;     
+  
+  	TRISA=0b11111101;	//make o/p direction
+ 
+  	TRISC=PORTC=0;		//make o/p direction
+  	TRISB=PORTB=0;		//make o/p direction
+
+  	ds1=ds2=ds3=ds4='0';
+}
+//-----------------------------------------------------------------------------------
+void init_keypad()
+{
+  	scan_no   =0;	//key_scanning
+  	krcnt     =32;	//count debounce
+  	dcnt      =33;	//key release count
+  	key_ready =0;	//key_ready flag
+  	carry     =1;	//status of carry flag based on coloum 
+  	nkp       =0;    //no key press flag
+}
+
+//------------------------------------------------------------------------------------
+void init_timer1()
+{
+  	T1CON=0X04;		//external clock provided
+  	TMR1H=0XFc;     //delay 1msec 
+  	TMR1L=0X18;		
+  
+  	temp=T1CON;		//	timer enable 
+  	temp=temp | 0x01;
+  	T1CON=temp;
+
+  	temp=PIE1;
+  	temp=temp|0x01;	//timer interrupt selected...
+  	PIE1=temp;
+}
+//------------------------------------------------------------------------------------
+void intr_en()
+{
+   	temp=INTCON;
+   	temp=temp|0xc0;		//GIE and PEIE bit for interrupt 
+   	INTCON=temp;
+}
+//-------------------------------------------------------------------------------------
+void scanner()
+{
+   	switch(scan_no)
+	{
+	  	case 0:	PORTA=0xFF;				//RA1=0  
+		       	temp=PORTA;
+		       	temp=temp & 0b11111101;
+		       	PORTA=temp;      		
+
+		       	temp=PORTC;				//RC0=RC1=RC2=1;
+		       	temp=temp | 0b11111111;
+		       	PORTC=temp;      		
+                    
+               	disp1();			//display on ssd 1
+	               	
+				carry=PORTA;	//11111101
+        	    carry=carry & 0b00000100;	RA2=0;
+	            carry=carry>>2;
+                    
+               		k();
+               		scan_no=1; 
+               		break;
+      	
+		case 1: carry=PORTA;
+	                carry=carry &0b00001000;
+         	        carry=carry>>3;         							
+               
+               		k();    
+	                scan_no=2;
+         	        break;
+		
+		case 2: carry=PORTA;
+	                carry=carry &0b00010000;
+         	        carry=carry>>4;
+                      
+	                k();    
+                        scan_no=3;
+	                break;
+		
+		case 3: carry=PORTA;
+	                carry=carry &0b00100000;
+         	        carry=carry>>5;
+                      
+	                k();        
+         	        scan_no=4;
+		        PORTB=0X00;
+	                break;     
+//-------------------------------------------------------------
+      	 	case 4: PORTA=0X00;
+   			temp=PORTA;
+   			temp=temp |0b00000010;
+			PORTA=temp;     		 //RA=1;
+
+       		   	PORTC=0X00;
+			temp=PORTC;
+			temp=temp | 0b11111110;
+			PORTC=temp;      		//RC0= 0 RC1=RC2=1;       
+    
+		        disp2();
+                   
+	                carry=PORTA;
+         	        carry=carry & 0b00000100;
+	                carry=carry>>2;
+                    
+         	        k();          
+	                scan_no=5;
+	                break; 
+		
+		case 5: carry=PORTA;
+	                carry=carry &0b00001000;
+	                carry=carry>>3;
+                      
+	                k();    
+	                scan_no=6;
+	                break;	    
+	
+	  	case 6: carry=PORTA;
+	                carry=carry &0b00010000;
+	                carry=carry>>4;
+                      
+         	        k();    
+	                scan_no=7;
+	                break;
+
+	  	case 7: carry=PORTA;
+	                carry=carry &0b00100000;
+	                carry=carry>>5;
+                      
+	                k();    
+		        scan_no=8;
+	                PORTB=0X00;
+   		        break;
+//-------------------------------------------------------------  
+	  	case 8: PORTA=0X00;
+   			temp=PORTA;
+   			temp=temp |0b00000010;
+			PORTA=temp; 		     //RA=1;
+
+               		PORTC=0X00;
+			temp=PORTC;
+			temp=temp | 0b11111101;
+		        PORTC=temp;      	     //RC1=0 RC0=RC2=1 ;
+      
+ 		        disp3();
+                 
+               		carry=PORTA;
+	                carry=carry & 0b00000100;
+         	        carry=carry>>2;
+                    
+               		k();
+	                scan_no=9;
+         	        break; 
+		
+	 	case 9: carry=PORTA;
+	                carry=carry &0b00001000;
+	                carry=carry>>3;
+                      
+	                k();    
+	                scan_no=10;
+	                break;
+		
+		case 10:carry=PORTA;
+	                carry=carry &0b00010000;
+	                carry=carry>>4;
+                      
+	                k();    
+	                scan_no=11;
+	                break;
+		 
+		case 11:carry=PORTA;
+        	        carry=carry &0b00100000;
+	                carry=carry>>5;
+                      
+	                k();    
+	                scan_no=12;
+	                PORTB=0X00;		
+	                break;
+//-------------------------------------------------------------
+ 		case 12:PORTA=0X00;
+   			temp=PORTA;
+   			temp=temp |0b00000010;
+			PORTA=temp;     		 //RA=1;
+
+			PORTC=0X00;
+			temp=PORTC;
+			temp=temp | 0b11111011;
+			PORTC=temp;     		 //RC2=0 RC0=RC1=1;
+      
+    			disp4();
+                
+        	    	carry=PORTA;
+            		carry=carry & 0b00000100;
+	            	carry=carry>>2;
+                    
+        	    	k();
+            		scan_no=13;
+	            	break; 
+		
+		case 13:carry=PORTA;
+            		carry=carry &0b00001000;
+	            	carry=carry>>3;
+                      
+	            	k();    
+        	    	scan_no=14;
+            		break;
+	
+		case 14:carry=PORTA;
+          	        carry=carry &0b00010000;
+ 		       	carry=carry>>4;
+                      
+        	    	k();    
+            		scan_no=15;
+	            	break;
+		  
+		case 15:carry=PORTA;
+                    	carry=carry &0b00100000;
+	            	carry=carry>>5;
+                      
+        	    	k();	    
+	            	scan_no=0;
+        	    	PORTB=0X00;
+	            	break;	  	 	  	    	  	 		     
+	}
+}
+//---------------------------------------------------------------------------------
+void k()
+{
+	if(key_ready==0)
+	{
+      		if(dcnt==33)
+	        {
+            		if(carry==0)
+            		{
+                		dcnt--;
+                		keycode=scan_no;
+            		}
+            		else
+		        	goto out_k;    
+        	}
+      		else
+        	{ 
+        		dcnt--;
+            		if(dcnt>0)
+	            		goto out_k;
+            		else
+		        {
+            			if(carry==1)
+				{	
+		                	dcnt=33;
+                    			goto out_k;
+    	   			} 
+         			else
+                		{
+					key_ready=1;
+			                dcnt=33;
+		                        goto out_k;   	
+				}
+      			}   
+     		} 
+  	}
+	else
+    	{
+    		if(carry==0)
+        	{
+			krcnt=32;
+            		goto out_k; 	
+        	}
+        	else
+        	{
+ 			krcnt--;
+			if(krcnt==1)
+            			goto out_k;
+            		else
+            		{
+				nkp=1;
+				krcnt==32;
+                		goto out_k; 		
+            		}  				
+     		}  
+ 	}   
+out_k:
+{
+}
+
+}
+//--------------------------------------------------------------------------------- 
+void disp1()
+{
+  	PORTB=pattern[ds1-'0'];
+}
+//---------------------------------------------------------------------------------
+void disp2()
+{
+  	PORTB=pattern[ds2-'0'];
+}
+//---------------------------------------------------------------------------------
+void disp3()
+{ 
+  	PORTB=pattern[ds3-'0'];
+}
+//---------------------------------------------------------------------------------
+void disp4()
+{ 
+  	PORTB=pattern[ds4-'0'];
+}
+//---------------------------------------------------------------------------------

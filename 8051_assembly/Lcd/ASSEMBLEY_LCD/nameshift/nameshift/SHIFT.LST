@@ -1,0 +1,316 @@
+  Fri Dec 12 2008 12:35                                                                                                  Page    1
+
+
+
+
+
+
+
+               2500 A.D. 8051 Macro Assembler  -  Version 4.03c
+               ------------------------------------------------
+
+                       Input  Filename : shift.asm
+                       Output Filename : shift.obj
+
+
+    1                          	;nameshift	.asm	
+    2                          	;define bit variables here...
+    3                          	;
+    4          00E0            	a0:	REG	A.0
+    5          00E1            	a1:	REG	A.1
+    6          00E2            	a2:	REG	A.2
+    7          00E3            	a3:	REG	A.3
+    8          00E4            	a4:	REG	A.4
+    9          00E5            	a5:	REG	A.5
+   10          00E6            	a6:	REG	A.6
+   11          00E7            	a7:	REG	A.7
+   12                          	;
+   13          0081            	rs:   	REG     P0.1   	 ;resgister select for LCD
+   14          0082            	r/w:   	REG     P0.2	;read/write for LCD
+   15          0083            	e:   	REG     P0.3	;enable for LCD
+   16          0084            	d4:   	REG     P0.4	;data bit d4 for LCD
+   17          0085            	d5:  	REG     P0.5	;data bit d5 for LCD
+   18          0086            	d6:   	REG     P0.6	;data bit d6 for LCD
+   19          0087            	d7:  	REG     P0.7	;data bit d7 for LCD
+   20                          	
+   21          0030            	count16:	equ	30h
+   22          0031            	dcount_1:	equ	31h
+   23          0032            	dcount_2:	equ	32h
+   24          0033            	dcount_3:	equ	33h
+   25                          	;--------------------------------------------------------------------------
+   26   0000                   		org 	0000h
+   27   0000   12 00 37        		call	init_lcd
+   28   0003   12 00 C0        		call	clear_display
+   29   0006   90 00 16        	main:	mov	dptr,#s_wr
+   30   0009   12 00 FC        		call	lcd_msg16
+   31   000C   74 80           		mov	a,#80h
+   32   000E   12 00 83        		call	lcd_wc
+   33   0011   12 01 26        		call	wait_1sec
+   34   0014                   		
+   35   0014   01 06           		jmp	main
+   36                          	
+   37   0016                   	s_wr:	
+   38                          	;		-1234567890123456-
+   39   0016   20 20 20 20 20  		db	"     PROLIFIC   "
+        001B   50 52 4F 4C 49 
+        0020   46 49 43 20 20 
+        0025   20 
+   40   0026   2A 2A 2A 2A 2A  		db	"****************",#03h
+        002B   2A 2A 2A 2A 2A 
+        0030   2A 2A 2A 2A 2A 
+        0035   2A 03 
+   41                          	
+  Fri Dec 12 2008 12:35                                                                                                  Page    2
+
+
+
+
+   42                          	
+   43   0037   12 01 1A        	init_lcd:	call	wait_5ms
+   44   003A   12 01 1A        		call	wait_5ms
+   45   003D   12 01 1A        		call	wait_5ms
+   46   0040   74 30           		mov	a,#30h
+   47   0042   12 00 B5        		call	lcd_wc0
+   48                          	
+   49   0045   12 01 1A        		call	wait_5ms
+   50   0048   74 30           		mov	a,#30h
+   51   004A   12 00 B5        		call	lcd_wc0
+   52   004D                   		
+   53   004D   12 01 1A        		call	wait_5ms
+   54   0050   74 30           		mov	a,#30h
+   55   0052   12 00 B5        		call	lcd_wc0
+   56   0055                   		
+   57   0055   12 01 1A        		call	wait_5ms
+   58   0058   74 20           		mov	a,#20h
+   59   005A   12 00 B5        		call	lcd_wc0
+   60   005D                   		
+   61   005D                   	lcd_init1:	
+   62   005D   74 28           		mov	a,#28h		;lcd type initialisation
+   63   005F   12 00 83        		call	lcd_wc
+   64   0062                   		
+   65   0062   74 08           		mov	a,#08h		;display off cursor off
+   66   0064   12 00 83        		call	lcd_wc
+   67   0067                   		
+   68   0067   74 0C           		mov	a,#0ch		;display on cursor on
+   69   0069   12 00 83        		call	lcd_wc
+   70   006C                   			
+   71   006C   74 05           		mov	a,#05h	;cursor fixed and display shift enable
+   72   006E   12 00 83        		call	lcd_wc
+   73   0071                   			
+   74   0071   74 0E           		mov	a,#0eh		;display cursor blinking
+   75   0073   12 00 83        		call	lcd_wc
+   76   0076                   		
+   77   0076   74 18           		mov	a,#18h		;display shift left
+   78   0078   12 00 83        		call	lcd_wc
+   79   007B                   			
+   80   007B   74 01           		mov	a,#01h		;clear display
+   81   007D   12 00 83        		call	lcd_wc
+   82   0080                   		
+   83   0080                   		  
+   84   0080   C2 80           		clr	p0.0
+   85   0082   22              		ret
+   86                          	
+   87                          	;----------------------------------------------------------------------
+   88   0083                   	mov_lcd_cursor:
+   89   0083                   	lcd_wc:	
+   90   0083   C0 E0           		push	a
+   91   0085   12 00 E8        		call	busy
+   92   0088   12 00 CC        		call	map
+   93   008B   C2 81           		clr	rs
+   94   008D   C2 82           		clr	r/w
+   95   008F   12 00 DD        		call	toggle_e
+   96   0092                   		
+   97   0092   C4              		swap	a
+   98   0093   12 00 CC        		call	map
+  Fri Dec 12 2008 12:35                                                                                                  Page    3
+
+
+
+
+   99                          	
+  100   0096   12 00 DD        		call	toggle_e
+  101   0099                   		
+  102   0099   D0 E0           		pop	a
+  103   009B   22              		ret
+  104                          	;-------------------------------------------------------------------
+  105                          	
+  106   009C                   	lcd_wd0:
+  107   009C   C0 E0           		push	a
+  108   009E   12 00 E8        		call	busy
+  109   00A1   12 00 CC        		call	map
+  110   00A4   D2 81           		setb	rs
+  111   00A6   C2 82           		clr	r/w
+  112   00A8   12 00 DD        		call	toggle_e
+  113                          	
+  114   00AB   C4              		swap	a
+  115   00AC   12 00 CC        		call	map
+  116   00AF   12 00 DD        		call	toggle_e
+  117   00B2                   		
+  118   00B2   D0 E0           		pop	a
+  119   00B4   22              		ret
+  120                          	;-------------------------------------------------------------
+  121   00B5                   	lcd_wc0:	
+  122   00B5                   		
+  123   00B5   12 00 CC        		call	map
+  124   00B8   C2 81           		clr	rs
+  125   00BA   C2 82           		clr	r/w
+  126   00BC   12 00 DD        		call	toggle_e
+  127   00BF                   			
+  128   00BF   22              		ret
+  129                          	
+  130                          	;------------------------------------------------------------
+  131   00C0                   	clear_display:
+  132   00C0   C0 E0           		push	a
+  133   00C2   12 00 E8        		call	busy
+  134   00C5   74 01           		mov	a,#01h
+  135   00C7   11 83           		call	lcd_wc
+  136   00C9   D0 E0           		pop	a
+  137   00CB   22              		ret
+  138                          	;-------------------------------------------------------------
+  139   00CC                   	map:	
+  140   00CC   A2 E4           		mov	c,a4
+  141   00CE   92 84           		mov	d4,c
+  142                          	
+  143   00D0   A2 E5           		mov	c,a5
+  144   00D2   92 85           		mov	d5,c
+  145                          	
+  146   00D4   A2 E6           		mov	c,a6
+  147   00D6   92 86           		mov	d6,c
+  148                          	
+  149   00D8   A2 E7           		mov	c,a7
+  150   00DA   92 87           		mov	d7,c
+  151   00DC   22              		ret
+  152                          	;-----------------------------------------------------------------
+  153   00DD                   	toggle_e:
+  154   00DD   00              		nop
+  155   00DE   D2 83           		setb	e
+  Fri Dec 12 2008 12:35                                                                                                  Page    4
+
+
+
+
+  156   00E0   00              		nop
+  157   00E1   00              		nop
+  158   00E2   00              		nop
+  159   00E3   00              		nop
+  160   00E4   C2 83           		clr	e
+  161   00E6   00              		nop
+  162   00E7   22              		ret
+  163                          	;-------------------------------------------------------------------
+  164   00E8                   	busy:
+  165   00E8   D2 87           		setb	d7
+  166   00EA   C2 81           		clr	rs
+  167   00EC   D2 82           		setb	r/w
+  168   00EE   00              		nop
+  169   00EF   D2 83           		setb	e
+  170   00F1   00              		nop
+  171   00F2   A2 87           		mov	c,d7
+  172   00F4   C2 83           		clr	e
+  173                          	
+  174   00F6   00              		nop
+  175   00F7   11 DD           		call	toggle_e
+  176   00F9   40 ED           		jc	busy
+  177   00FB   22              		ret
+  178                          	;----------------------------------------------------------------------
+  179   00FC                   	lcd_msg16:
+  180   00FC   75 30 00        		mov	count16,#00h
+  181   00FF   C0 E0           		push	a
+  182   0101                   		
+  183   0101   74 00           	wr_l1:	mov	a,#00h
+  184   0103   93              		movc	a,@a+dptr
+  185   0104   B4 03 03        		cjne	a,#03h,wr_l2
+  186   0107   02 01 23        		jmp	out_wr
+  187   010A                   	wr_l2:
+  188   010A   11 9C           		call	lcd_wd0
+  189   010C   A3              		inc	dptr
+  190   010D                   		
+  191   010D   05 30           		inc	count16
+  192   010F   E5 30           		mov	a,count16
+  193   0111   B4 10 ED        		cjne	a,#16d,wr_l1
+  194   0114   74 A8           		mov	a,#0a8h
+  195   0116                   		
+  196   0116   11 83           		call	mov_lcd_cursor
+  197   0118   21 01           		jmp	wr_l1
+  198                          	;----------------------------------------------------
+  199   011A                   	wait_5ms:
+  200   011A   7A 15           		mov	r2,#21d
+  201   011C   7B FF           	l1:	mov	r3,#0ffh
+  202   011E   DB FE           		djnz	r3,$
+  203   0120   DA FA           		djnz	r2,l1
+  204   0122   22              		ret
+  205   0123                   	out_wr:
+  206   0123   D0 E0           		pop	a
+  207   0125   22              		ret
+  208   0126                   	wait_1sec:
+  209   0126                   		
+  210   0126   75 33 07        		mov	dcount_3,#07d
+  211   0129   75 32 FF        	l2:	mov 	dcount_2,#0ffh
+  212   012C   75 31 FF        	l3:	mov 	dcount_1,#0ffh
+  Fri Dec 12 2008 12:35                                                                                                  Page    5
+
+
+
+
+  213   012F   D5 31 FD        		djnz 	dcount_1,$
+  214   0132   D5 32 F7        		djnz 	dcount_2,l3
+  215   0135   D5 33 F1        		djnz 	dcount_3,l2
+  216   0138   22              		ret
+  217   0139                   	end
+  Fri Dec 12 2008 12:35                                                                                                  Page    6
+
+
+Defined            Symbol Name             Value                References
+
+    4    a0                              =  00E0      
+    5    a1                              =  00E1      
+    6    a2                              =  00E2      
+    7    a3                              =  00E3      
+    8    a4                              =  00E4          140
+    9    a5                              =  00E5          143
+   10    a6                              =  00E6          146
+   11    a7                              =  00E7          149
+  Pre    BSECT                              0000      
+  164    busy                               00E8           91    108    133    176
+  131    clear_display                      00C0           28
+  Pre    CODE                               0000           26
+   21    count16                         =  0030          180    191    192
+   16    d4                              =  0084          141
+   17    d5                              =  0085          144
+   18    d6                              =  0086          147
+   19    d7                              =  0087          150    165    171
+  Pre    DATA                               0000      
+   22    dcount_1                        =  0031          212    213
+   23    dcount_2                        =  0032          211    214
+   24    dcount_3                        =  0033          210    215
+   15    e                               =  0083          155    160    169    172
+  217    end                                0139      
+   43    init_lcd                           0037           27
+  201    l1                                 011C          203
+  211    l2                                 0129          215
+  212    l3                                 012C          214
+   61    lcd_init1                          005D      
+  179    lcd_msg16                          00FC           30
+   89    lcd_wc                             0083           32     63     66     69     72     75     78     81    135
+  121    lcd_wc0                            00B5           47     51     55     59
+  106    lcd_wd0                            009C          188
+   29    main                               0006           35
+  139    map                                00CC           92     98    109    115    123
+   88    mov_lcd_cursor                     0083          196
+  205    out_wr                             0123          186
+   14    r/w                             =  0082           94    111    125    167
+   13    rs                              =  0081           93    110    124    166
+  Pre    RSECT                              0000      
+   37    s_wr                               0016           29
+  153    toggle_e                           00DD           95    100    112    116    126    175
+  208    wait_1sec                          0126           33
+  199    wait_5ms                           011A           43     44     45     49     53     57
+  183    wr_l1                              0101          193    197
+  187    wr_l2                              010A          185
+
+
+
+
+           Lines Assembled :  217             Assembly Errors :  0
+
+
+

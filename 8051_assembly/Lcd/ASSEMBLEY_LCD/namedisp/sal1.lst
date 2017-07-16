@@ -1,0 +1,225 @@
+C51 COMPILER V7.10   SAL1                                                                  12/05/2008 13:49:26 PAGE 1   
+
+
+C51 COMPILER V7.10, COMPILATION OF MODULE SAL1
+OBJECT MODULE PLACED IN .\sal1.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE E:\sailesh\sal1.c BROWSE DEBUG OBJECTEXTEND PRINT(.\sal1.lst) OBJECT(.\sal1
+                    -.obj)
+
+line level    source
+
+   1          //-----------------------------------------------------------
+   2          //---------------PROGRAM FOR DISPLAY ON LCD-----------------
+   3          //---------------------------------------------------------------
+   4          #include <REG51F.H>
+   5          #include<string.h>
+   6          //---------------------FUNCTION DECLARATION------------------------------
+   7          void lcd_init();
+   8          void lcd_cw0(unsigned char);
+   9          void lcd_cw(unsigned char);
+  10          void lcd_dw(unsigned char);
+  11          void delay(unsigned char);
+  12          void map(unsigned char);
+  13          void busy();
+  14          display(unsigned char *,unsigned char);
+  15          //------------------------------------------------------------
+  16          unsigned char name[32]="SAILESH IS THE  BEST";
+  17          //---------------------BIT DECLARATION---------------------------------
+  18          sbit    back=P0^0;
+  19          sbit    rs=P0^1;
+  20          sbit    rw=P0^2;
+  21          sbit    en=P0^3;
+  22          
+  23          sbit    d7=P0^7;
+  24          sbit    d6=P0^6;
+  25          sbit    d5=P0^5;
+  26          sbit    d4=P0^4;
+  27          //--------------------------------------------------
+  28          void main()
+  29          {
+  30   1              unsigned char len;
+  31   1              lcd_init();
+  32   1              len=strlen(name);
+  33   1              display(&name,len);
+  34   1              
+  35   1              while(1)
+  36   1              {
+  37   2               }
+  38   1      }
+  39          //-------------------------------------------------------------
+  40          display(unsigned char *n,unsigned char len)
+  41          {
+  42   1              unsigned char i;
+  43   1              for(i=0;i<len;i++)
+  44   1              {
+  45   2                      if(i==16)
+  46   2                      {
+  47   3                              lcd_cw(0xC0);
+  48   3                       }
+  49   2              lcd_dw(*n);
+  50   2                      n++;
+  51   2              }
+  52   1      }
+  53          //--------------------------------------------------------
+  54          void lcd_init()
+C51 COMPILER V7.10   SAL1                                                                  12/05/2008 13:49:26 PAGE 2   
+
+  55          {
+  56   1              delay(150);
+  57   1      
+  58   1              lcd_cw0(0x30);
+  59   1      
+  60   1              delay(15);
+  61   1      
+  62   1              lcd_cw0(0x30);
+  63   1      
+  64   1              delay(10);
+  65   1      
+  66   1              lcd_cw0(0x30);
+  67   1      
+  68   1              delay(10);
+  69   1      
+  70   1              lcd_cw0(0x20);
+  71   1      
+  72   1              delay(10);
+  73   1      
+  74   1              lcd_cw(0x28);
+  75   1      
+  76   1              delay(10);
+  77   1      
+  78   1              lcd_cw(0x08);
+  79   1      
+  80   1              delay(10);
+  81   1      
+  82   1              lcd_cw(0x0c);
+  83   1      
+  84   1              delay(10);
+  85   1      
+  86   1              lcd_cw(0x06);
+  87   1      
+  88   1              delay(10);
+  89   1      
+  90   1              lcd_cw(0x0e);
+  91   1      
+  92   1              delay(10);
+  93   1      
+  94   1              lcd_cw(0x01);
+  95   1      
+  96   1              delay(10);
+  97   1      
+  98   1              back=0;
+  99   1      }
+ 100          //-------------------------------------------------
+ 101          void lcd_cw0(unsigned char value)
+ 102          {
+ 103   1              map(value);
+ 104   1      
+ 105   1              rs=0;
+ 106   1              rw=0;
+ 107   1              en=1;
+ 108   1      
+ 109   1              delay(10);
+ 110   1      
+ 111   1              en=0;
+ 112   1      }
+ 113          //---------------------------------------------
+ 114          void lcd_cw(unsigned char value)
+ 115          {
+ 116   1              rs=0;
+C51 COMPILER V7.10   SAL1                                                                  12/05/2008 13:49:26 PAGE 3   
+
+ 117   1              rw=0;
+ 118   1      
+ 119   1              map(value);
+ 120   1      
+ 121   1              en=1;
+ 122   1      
+ 123   1              delay(10);
+ 124   1      
+ 125   1              en=0;
+ 126   1      
+ 127   1              value=value << 4;
+ 128   1      
+ 129   1              map(value);
+ 130   1      
+ 131   1              en=1;
+ 132   1      
+ 133   1              delay(10);
+ 134   1      
+ 135   1              en=0;
+ 136   1      }
+ 137          //------------------------------------
+ 138          void lcd_dw(unsigned char value)
+ 139          {
+ 140   1              busy();
+ 141   1      
+ 142   1              rs=1;
+ 143   1              rw=0;
+ 144   1      
+ 145   1              map(value);
+ 146   1              en=1;
+ 147   1      
+ 148   1              delay(10);
+ 149   1      
+ 150   1              en=0;
+ 151   1              value=value<<4;
+ 152   1      
+ 153   1              map(value);
+ 154   1              en=1;
+ 155   1      
+ 156   1              delay(10);
+ 157   1      
+ 158   1              en=0;
+ 159   1      }
+ 160          //------------------------------------------
+ 161          
+ 162          void busy(void)
+ 163          {
+ 164   1              bit     flag;
+ 165   1      
+ 166   1              d7=1;
+ 167   1              rs=0;
+ 168   1              rw=1;
+ 169   1      
+ 170   1              en=1;
+ 171   1              delay(5);
+ 172   1      
+ 173   1              flag=d7;
+ 174   1              delay(5);
+ 175   1      
+ 176   1              en=0;
+ 177   1              if(flag)
+ 178   1              {
+C51 COMPILER V7.10   SAL1                                                                  12/05/2008 13:49:26 PAGE 4   
+
+ 179   2                      busy();
+ 180   2               }
+ 181   1      }
+ 182          //-----------------------------------------------
+ 183          void map(unsigned char value)
+ 184          {
+ 185   1              P0=((P0 & 0x0F)|(value & 0xF0));
+ 186   1       }
+ 187          //------------------------------------------------
+ 188          void delay(unsigned char value)
+ 189          {
+ 190   1              unsigned int i,j;
+ 191   1              j=200 * value;
+ 192   1              for(i=0;i<j;i++);
+ 193   1      }
+ 194          //---------------------------------------------
+ 195                                  
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    343    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     32       7
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

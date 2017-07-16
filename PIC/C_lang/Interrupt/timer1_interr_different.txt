@@ -1,0 +1,54 @@
+#include<pic.h>
+
+unsigned char temp;
+
+void init_timer1();
+void disp_led(void);
+
+//======================================================
+void main()
+{
+   	TRISB =0X00;		//PORTB made as o/p
+   	PORTB =0xff;		//this value is displaying on led's
+   
+   	init_timer1();
+   
+   	temp=INTCON;		//global and pheripehral bit generated of INTCON register
+   	temp=temp|0xc0;
+   	INTCON=temp;		
+    
+   while(1);
+}
+//------------------------------------------------------
+void init_timer1()
+{
+  	//T1CON=0X04;   //initia;ise timer1
+	T1CON=0x30;		// using prescaler 1:8 means 50ms*8=400ms delay generated
+  	TMR1H=0x3c;  	//load timer value
+  	TMR1L=0xb0;		//for 50ms...this value is for 50ms..delay
+  
+  	temp=T1CON;
+  	temp=temp|0x01;
+  	T1CON=temp;    //timer1 run enable bit
+  
+  	temp=PIE1;
+  	temp=temp|0x01;
+  	PIE1=temp;      //timer1 interrupt enable
+  
+}
+//------------------------------------------------------
+void disp_led(void)
+{
+   	temp =PORTB;
+   	temp =temp ^ 0xaa;
+   	PORTB=temp;
+}
+//------------------------------------------------------
+interrupt void isr_t1(void) 
+{
+  	disp_led();
+	//init_timer1();
+  	temp=PIR1;
+  	temp=temp & 0xFE;
+  	PIR1=temp;
+}

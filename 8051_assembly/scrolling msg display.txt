@@ -1,0 +1,130 @@
+
+count  	equ  	30h 
+count1 	equ 	31h
+
+ds1 	equ 	32h
+ds2 	equ 	33h
+ds3 	equ 	34h
+ds4 	equ 	35h
+
+
+sl1	bit	p2.0
+sl2 	bit 	p2.1
+sl3 	bit 	p2.2
+sl4 	bit 	p2.3
+
+;-----------------------------
+	org 0000h
+
+	mov	ds1,#03h
+	mov	ds2,#02h
+	mov	ds3,#01h
+	mov	ds4,#00h
+
+	
+
+back:
+	 mov r0,#62
+main:
+	call	display
+	djnz r0,main
+	call application
+
+	jmp back
+;--------------------------
+delay:
+    mov count,#08h
+ L1:mov count1,#0ffh
+    djnz count1,$
+    djnz count,L1
+    ret
+
+;-----------------------------
+
+display:
+
+	clr sl1
+	setb sl2
+	setb sl3
+	setb sl4
+
+	mov	a,ds1
+	mov	dptr,#pattern_table
+	movc	a,@a+dptr
+	mov		p0,a
+
+
+	call delay
+
+	setb sl1
+	clr sl2
+	setb sl3
+	setb sl4
+
+	mov	a,ds2
+	mov	dptr,#pattern_table
+	movc	a,@a+dptr
+	mov		p0,a
+
+
+	call delay
+
+	setb sl1
+	setb sl2
+	clr sl3
+	setb sl4
+
+	mov	a,ds3
+	mov	dptr,#pattern_table
+	movc	a,@a+dptr
+	mov		p0,a
+
+
+	call delay
+
+	setb sl1
+	setb sl2
+	setb sl3
+	clr sl4
+
+	mov	a,ds4
+	mov	dptr,#pattern_table
+	movc	a,@a+dptr
+	mov		p0,a
+
+
+	call delay
+
+	ret
+
+pattern_table: 
+	db		01101110b; H pattern      
+	db		10011110b; E pattern
+	db		1ch       ; L pattern
+	db		00011100b; L pattern
+	db		11111100b; O pattern
+	/*
+	db		0b6h	;5 pattern
+	db		0beh	;6 pattern
+	db		0e0h	;7 pattern
+	db		0feh	;8 pattern
+	db		0f6h	;9 pattern
+	*/
+
+;----------Application for scrolling
+
+application:
+	
+	 mov a,ds4			
+	 mov ds4,ds3
+	 mov ds3,ds2
+	 mov ds2,ds1
+	 inc ds1
+	 mov a,ds1
+	 cjne a,#05h,out
+	 mov ds1,#00h
+
+out: 	 ret
+
+
+end

@@ -1,0 +1,36 @@
+#include<pic.h>
+void delay(unsigned int );
+ void main()
+
+{
+    RP0=0x01;     
+	RP1=0x00;		//bank 1 selected
+	
+	TRISB=0x00;		//port b made as output
+
+	RP0=0x00;    	// bank0 selected
+	RP1=0x00;
+
+unsigned int i;
+	while(1)
+	{
+		PORTB=0x80;		//starting add of port b
+		delay(1000);
+
+		for(i=0;i<8;i++)
+		{
+		  PORTB=PORTB>>1;		// rotate right
+		  delay(1000);	
+		}	
+	}
+}
+void delay(unsigned int k)
+
+{ 
+  unsigned int i,j;
+
+  for(i=0;i<k;i++)
+  for(j=0;j<40;j++);		//We are using 4Mhz crystal freq. in "PIC" therfore 4*10=40 that's why we are using 40. 
+}
+	
+		

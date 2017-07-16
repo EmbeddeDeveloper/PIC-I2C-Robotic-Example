@@ -1,0 +1,46 @@
+#include<REG51F.H>
+sbit en12=P1^0;
+sbit dcm1=P1^1;
+sbit dcm2=P1^2;
+void timer();
+unsigned char i;
+void main()
+{
+	while(1)
+	{
+		en12=1;
+		
+		dcm1=1;
+		dcm2=0;
+		for(i=0;i<20;i++)
+		timer();
+		
+		dcm1=0;
+		dcm2=0;
+		for(i=0;i<20;i++)
+		timer();
+
+		dcm1=0;
+		dcm2=1;
+		for(i=0;i<20;i++)
+		timer();
+
+		dcm1=0;
+		dcm2=0;
+		for(i=0;i<20;i++)
+		timer();
+	}
+}
+/*---------------------------------*/
+void timer()
+{
+	TMOD=0x01;
+	TH0=0x48;		//timer for 50 ms....
+	TL0=0xfd;
+	TR0=1;
+	while(TF0==0);
+	TF0=0;
+	TR0=0;
+	
+}
+/*---------------------------------*/

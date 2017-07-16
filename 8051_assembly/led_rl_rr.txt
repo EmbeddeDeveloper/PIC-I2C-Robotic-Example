@@ -1,0 +1,30 @@
+
+org 0000h
+ 	mov a,#01h
+main:
+	mov r5,#07h
+left:
+	mov p0,a
+	call delay  
+	rl a
+	djnz r5,left
+	mov r6,#07h
+right:
+	mov p0,a
+	call delay
+	rr a
+	djnz r6,right 
+	jmp main
+
+delay:
+	mov r0,#07h
+L2:
+	mov r1,#0ffh
+L1:
+	mov r2,#0ffh
+	djnz r2,$
+	djnz r1,L1
+	djnz r0,L2
+	ret
+
+end

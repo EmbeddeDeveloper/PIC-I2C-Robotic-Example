@@ -1,0 +1,143 @@
+
+count  equ  30h 
+count1 equ 31h
+
+ds1 equ 32h
+ds2 equ 33h
+ds3 equ 34h
+ds4 equ 35h
+
+
+sl1	bit	p2.0
+sl2 bit p2.1
+sl3 bit p2.2
+sl4 bit p2.3
+
+;-----------------------------
+	org 0000h
+
+	mov	ds1,#"D"
+	mov	ds2,#"C"
+	mov	ds3,#"B"
+	mov	ds4,#"A"
+
+back:
+	 mov r0,#62h
+main:call	display
+	 djnz r0,main
+	 call application
+
+	 jmp back
+;--------------------------
+;----this delay is for 2 milisec
+delay:
+    mov count,#04h
+ L1:mov count1,#0ffh
+    djnz count1,$
+    djnz count,L1
+    ret
+;---------------------------
+
+display:
+
+	clr sl1
+	setb sl2
+	setb sl3
+	setb sl4
+
+	mov	a,ds1
+	mov	dptr,#pattern_table
+	clr c
+	subb a,#"0"
+	movc	a,@a+dptr
+	mov	p0,a
+
+
+	call delay
+
+	setb sl1
+	clr sl2
+	setb sl3
+	setb sl4
+
+	mov	a,ds2
+	mov	dptr,#pattern_table
+	clr c
+	subb a,#"0"
+	movc	a,@a+dptr
+	mov		p0,a
+
+
+	call delay
+
+	setb sl1
+	setb sl2
+	clr sl3
+	setb sl4
+
+	mov	a,ds3
+	mov	dptr,#pattern_table
+	clr c
+	subb a,#"0"
+	movc	a,@a+dptr
+	mov		p0,a
+
+
+	call delay
+
+	setb sl1
+	setb sl2
+	setb sl3
+	clr sl4
+
+	mov	a,ds4
+	mov	dptr,#pattern_table
+	clr c
+	subb a,#"0"
+	movc	a,@a+dptr
+	mov		p0,a
+
+
+	call delay
+
+	ret
+
+pattern_table: 
+	db		11111100b	;0 pattern
+	db		60h	;1 pattern
+	db		0dah	;2 pattern
+	db		0f2h	;3 pattern
+	db		66h	;4 pattern
+	db		0b6h	;5 pattern
+	db		0beh	;6 pattern
+	db		0e0h	;7 pattern
+	db		0feh	;8 pattern
+	db		0f6h	;9 pattern
+	db  	0feh	;
+	db  	0feh	;
+	db  	0feh	;
+	db  	0feh	;
+	db  	0feh	;
+	db  	0feh	;
+	db  	0feh	;
+	db		0eeh	; A
+	db		3eh		; B
+	db      9ch		; C
+	db		7ah		; D
+	db		9eh		; E
+	db		8eh		; F
+;--------------------------------------------
+application:
+	
+	 mov a,ds4
+	 mov ds4,ds3
+	 mov ds3,ds2
+	 mov ds2,ds1
+	 inc ds1
+	 mov a,ds1
+	 cjne a,#"G",out
+	 mov ds1,#"A"
+
+out: 	 ret
+
+end

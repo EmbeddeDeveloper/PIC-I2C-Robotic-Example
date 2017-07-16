@@ -1,0 +1,164 @@
+#include <REG51F.H>
+
+unsigned char ds1,ds2,ds3,ds4;
+unsigned char Pattern[]={0xfc,0x60,0xda,0xf2,0x66,0xb6,0xbe,0xe0,0xfe,0xf6,0x00,0xff};
+unsigned char scan_no = 0;
+void delay(unsigned int time);
+
+sbit sl1=P2^0;
+sbit sl2=P2^1;
+sbit sl3=P2^2;
+sbit sl4=P2^3;
+
+void init_timer0();
+void display();
+void scanner();
+void isr_t0();
+void inc();
+
+void main()
+{
+	scan_no=0;
+	init_timer0();
+	EA=1;
+	ds1=ds2=ds3=ds4=0;
+	while(1)
+  	{
+		delay(250);
+		inc();
+	}	  
+}		 
+
+void init_timer0()
+{
+	TMOD = 0x01;
+    TH0  = 0xfc;
+    TL0  = 0x66;
+    TR0  = 1;
+	ET0  = 1;
+} 
+
+void isr_t0()interrupt 1
+{
+	init_timer0();
+	scanner();
+}
+
+void scanner()
+{
+	switch(scan_no)
+	{
+		case 0: sl1=0;
+				sl2=sl3=sl4=1;
+				P0=Pattern[ds1];
+				scan_no++;
+				break;
+		case 1: scan_no++;
+				break;
+		case 2: scan_no++;
+				break;
+		case 3: scan_no++;
+				P0=0;
+				break;
+				
+		case 4: sl1=sl3=sl4=1;
+				sl2=0;
+				P0=Pattern[ds2];
+				scan_no++;
+				break;
+		case 5: scan_no++;
+				break;
+		case 6: scan_no++;
+				break;
+		case 7: scan_no++;
+				P0=0;
+				break;
+
+		case 8: sl1=sl2=sl4=1;
+				sl3=0;
+				P0=Pattern[ds3];
+				scan_no++;
+				break;
+		case 9: scan_no++;
+				break;
+		case 10:scan_no++;
+				break;
+		case 11:scan_no++;
+				P0=0;
+				break;
+
+		case 12: sl1=sl2=sl3=1;
+				 sl4=0;
+				 P0=Pattern[ds4];
+				 scan_no++;
+				 break;
+		case 13: scan_no++;
+				 break;
+		case 14: scan_no++;
+				 break;
+		case 15: scan_no=0;
+				 P0=0;
+				 break;
+		}
+}
+
+/*void display()
+{
+	sl1=0;
+	sl2=sl3=sl4=1;
+	P0=Pattern[ds1];
+	delay(1);
+
+	sl2=0;
+	sl1=sl3=sl4=1;
+	P0=Pattern[ds2];
+	delay(1);
+
+	sl3=0;
+	sl2=sl1=sl4=1;
+	P0=Pattern[ds3];
+	delay(1);
+
+	sl4=0;
+	sl2=sl3=sl1=1;
+	P0=Pattern[ds4];
+	delay(1);
+} */
+
+void inc()
+{
+	ds1++;
+	if(ds1>9)
+	{ 
+		ds1=0;
+		ds2++;
+	}
+    if(ds2>9)
+	{
+		ds2=0;
+		ds3++;
+	}
+	if(ds3>9)
+	{
+		ds3=0;
+		ds4++;
+	}
+	if(ds4>9)
+	{
+		ds1=0;
+		ds2=0;
+		ds3=0;
+		ds4=0;
+	}
+}
+
+void delay(unsigned int time)
+{
+	unsigned int i,j;		
+	for(i=0;i<time;i++)
+	for(j=0;j<120;j++);
+}
+	
+
+
+
